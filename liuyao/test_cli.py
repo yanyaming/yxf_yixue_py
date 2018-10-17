@@ -1,7 +1,9 @@
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
-import settings
 import os
 import sys
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # 基地址是本项目根目录
+sys.path.append(BASE_DIR)
 import datetime
 import liuyao.paipan as paipan
 import liuyao.fenxi as fenxi

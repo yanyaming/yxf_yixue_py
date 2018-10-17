@@ -1,5 +1,5 @@
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
-import settings
 import os
 import openpyxl
 import openpyxl.utils
@@ -67,7 +67,6 @@ class Excel2Db:
                 table_col = []
                 for col in ws_origin[i + 1]:  # 每一数据行的列值
                     table_col.append(col.value)
-                    print(i)
                 if table_col[0] is None or table_col[0] is 'None':  # 遇到空行退出（因为表格后面有自己加的注释）
                     break
                 table.append(table_col)
@@ -75,7 +74,7 @@ class Excel2Db:
 
     # 搜索所有的excel，根据首行自动添加数据列，原封不动地存入数据库
     def transform2db(self):
-        excelpath = os.path.join(settings.BASE_DIR, os.path.join("utils", "cexcel"))
+        excelpath = os.path.join(os.path.dirname(os.path.abspath(__file__)),'cexcel')
         file_list = os.listdir(excelpath)
         for file in file_list:
             tablename, table_colname, table = self.read_excel(excelpath, file)

@@ -1,5 +1,5 @@
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
-import settings
 from utils.db import Db
 from utils.db2cdata import Db2Cdata
 

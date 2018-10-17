@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
-import settings
 import os
+import platform
+OS = platform.system()  # 返回字符串"Windows" or "Linux"
+
 
 """
 测试主入口:
@@ -40,7 +42,7 @@ class Test:
 
     @staticmethod
     def call(command):
-        if settings.OS == 'Windows':
+        if OS == 'Windows':
             os.system("cmd /k " + command)
         else:
             os.system(command)

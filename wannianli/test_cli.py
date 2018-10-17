@@ -1,5 +1,9 @@
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
-import settings
+import os
+import sys
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # 基地址是本项目根目录
+sys.path.append(BASE_DIR)
 import datetime
 from wannianli.wannianli_api import Api
 from wannianli.calendar import Calendar
@@ -61,4 +65,5 @@ class Test:
 if __name__ == '__main__':
     t = Test()
     t.work1()
-    # t.work2()
+    t.work2()
+    t.work3()

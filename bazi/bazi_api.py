@@ -1,7 +1,5 @@
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
-import settings
-import sys
-sys.path.append('..')
 import wannianli.wannianli_api
 from paipan import Paipan
 

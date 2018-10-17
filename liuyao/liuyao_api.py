@@ -1,5 +1,5 @@
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
-import settings
 import wannianli.wannianli_api
 from liuyao.paipan import Paipan
 from liuyao.fenxi import Fenxi

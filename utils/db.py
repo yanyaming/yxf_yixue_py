@@ -1,5 +1,6 @@
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
-import settings
+import run_api
 import os
 import sqlite3
 
@@ -87,6 +88,6 @@ class Db:
         return rows
 
     def __connect(self):
-        conn = sqlite3.connect(os.path.join(settings.BASE_DIR, os.path.join('utils', 'cdb.db')))
+        conn = sqlite3.connect(os.path.join(os.path.dirname(os.path.abspath(__file__)),'cdb.db'))
         cursor = conn.cursor()
         return conn, cursor
