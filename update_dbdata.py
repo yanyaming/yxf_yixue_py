@@ -1,5 +1,5 @@
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
-import settings
 from utils.excel2db import Excel2Db
 
 

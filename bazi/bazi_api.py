@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 import wannianli.wannianli_api
-from paipan import Paipan
+from bazi.paipan import Paipan
 
 
 class Api:
