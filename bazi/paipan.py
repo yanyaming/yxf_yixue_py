@@ -93,20 +93,20 @@ class Paipan:
         map_str += '\n'
         # 天干
         map_str += self.Bazibazi['年干']['宫主']
-        map_str += '\t\t\t'
+        map_str += '\t\t'
         map_str += self.Bazibazi['月干']['宫主']
-        map_str += '\t\t\t'
+        map_str += '\t\t'
         map_str += self.Bazibazi['日干']['宫主']
-        map_str += '\t\t\t'
+        map_str += '\t\t'
         map_str += self.Bazibazi['时干']['宫主']
         map_str += '\n'
         # 地支
         map_str += self.Bazibazi['年支']['宫主']
-        map_str += '\t\t\t'
+        map_str += '\t\t'
         map_str += self.Bazibazi['月支']['宫主']
-        map_str += '\t\t\t'
+        map_str += '\t\t'
         map_str += self.Bazibazi['日支']['宫主']
-        map_str += '\t\t\t'
+        map_str += '\t\t'
         map_str += self.Bazibazi['时支']['宫主']
         map_str += '\n'
         # 地支藏干
@@ -115,25 +115,25 @@ class Paipan:
                 map_str += self.Bazibazi['年支']['藏干']['藏干'+str(i)]
                 map_str += self.Tiangan[self.Bazibazi['年支']['藏干']['藏干'+str(i)]]['十神']
             else:
-                map_str += '\t'
+                map_str += '      '
             map_str += '\t\t'
             if self.Bazibazi['月支']['藏干']['藏干'+str(i)] != '无':
                 map_str += self.Bazibazi['月支']['藏干']['藏干'+str(i)]
                 map_str += self.Tiangan[self.Bazibazi['月支']['藏干']['藏干'+str(i)]]['十神']
             else:
-                map_str += '\t'
+                map_str += '      '
             map_str += '\t\t'
             if self.Bazibazi['日支']['藏干']['藏干'+str(i)] != '无':
                 map_str += self.Bazibazi['日支']['藏干']['藏干'+str(i)]
                 map_str += self.Tiangan[self.Bazibazi['日支']['藏干']['藏干'+str(i)]]['十神']
             else:
-                map_str += '\t'
+                map_str += '      '
             map_str += '\t\t'
             if self.Bazibazi['时支']['藏干']['藏干'+str(i)] != '无':
                 map_str += self.Bazibazi['时支']['藏干']['藏干'+str(i)]
                 map_str += self.Tiangan[self.Bazibazi['时支']['藏干']['藏干'+str(i)]]['十神']
             else:
-                map_str += '\t'
+                map_str += '      '
             map_str += '\n'
         # 十二长生运
         shierzhangsheng = self.Bazibazi['日干']['十二长生'].copy()  # 改造变长字符串方便显示
@@ -166,7 +166,7 @@ class Paipan:
         map_str += '\n'
         for dayun in self.Dayun.keys():
             map_str += str(self.Dayun[dayun]['虚岁'])
-            map_str += '\t\t\t'
+            map_str += '\t\t'
         map_str += '\n'
         for dayun in self.Dayun.keys():
             map_str += dayun

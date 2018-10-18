@@ -100,7 +100,7 @@ class Paipan:
                 map_str += '↓'
             map_str += self.Pan[i]['阴阳']
             map_str += self.Pan[i]['三分']
-            map_str += '\t' + '|'
+            map_str += '' + '|'
             if int(i) % 3 == 0:
                 map_str += '\n'
                 map_str += '------\t------\t------\t------\t------\t------'

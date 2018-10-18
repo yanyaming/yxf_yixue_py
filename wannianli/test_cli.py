@@ -65,5 +65,5 @@ class Test:
 if __name__ == '__main__':
     t = Test()
     t.work1()
-    t.work2()
+    #t.work2()
     t.work3()
