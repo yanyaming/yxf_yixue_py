@@ -1,0 +1,2 @@
+include *
+recursive-include yxf_yixue *.db *.xlsx *.py *.txt *.md

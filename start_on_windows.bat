@@ -1,1 +1,0 @@
-start python test_cli.py
