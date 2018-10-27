@@ -14,7 +14,7 @@ setup(
     author="yanyaming",
     packages=find_packages(where='.', include='*'),  # 需要指定这些参数才能正确搜索和安装，安装所有添加了__init__的目录
     include_package_data=True,  # 设置为True，通过MANIFEST.in包含其他类型文件
-    install_requires=[
+    install_requires=[  # 自动安装依赖
         "openpyxl",
     ],
     zip_safe=False,  # 非压缩安装，可见源代码
