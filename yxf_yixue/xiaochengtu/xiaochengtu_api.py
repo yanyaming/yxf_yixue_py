@@ -20,7 +20,7 @@ class XiaochengtuApi:
         if self.p is None:
             print('请先调用paipan()排盘后再使用本函数！')
             return None
-        self.p.output()
+        return self.p.output()
 
     def get_chuantongfenxi(self):
         if self.p is None:

@@ -19,7 +19,7 @@ class Paipan:
         self.Liushijiazi = self.db.get_tabledict_dict("[基础表-六十甲子]")
         self.Luoshu = self.db.get_tabledict_dict("[基础表-洛书九宫格]")
 
-    def paipan(self, datetime_obj, calendar, solarTermJie, xingbie='男'):
+    def paipan(self, datetime_obj, calendar, solarTermJie, xingbie):
         self.solar = calendar[0]
         self.lunar = calendar[1]
         self.solarTerm = calendar[2]
@@ -184,7 +184,7 @@ class Paipan:
                 self.Dayun[dayun]['十二长生'] += '  '
             map_str += self.Dayun[dayun]['十二长生']
             map_str += '\t\t'
-        print(map_str)
+        return map_str
 
     def bazi(self):
         # 胎元：天干为月干+1，地支为月支+3

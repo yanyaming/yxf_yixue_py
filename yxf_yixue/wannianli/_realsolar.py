@@ -133,7 +133,7 @@ class RealSolar:
     def __datetimeStr2Obj(datetime_str):
         datetime_obj = datetime.datetime(
             # 编程语言问题：字符串切片截取——从0开始，从左界开始，顺数几个就截取几位
-            # 例：2017/08/09 15:30
+            # 例：2017-08-09 15:30
             int(datetime_str[0:4]),   # year=2017
             int(datetime_str[5:7]),   # month=08
             int(datetime_str[8:10]),   # day=09
@@ -144,9 +144,9 @@ class RealSolar:
 
     @staticmethod
     def __datetimeObj2Str(datetime_obj):
-        # 转化为字符串形式：YYYY/mm/dd HH:MM
-        datetime_str = str(datetime_obj.year).zfill(4) + '/' + \
-                       str(datetime_obj.month).zfill(2) + '/' + \
+        # 转化为字符串形式：YYYY-mm-dd HH:MM
+        datetime_str = str(datetime_obj.year).zfill(4) + '-' + \
+                       str(datetime_obj.month).zfill(2) + '-' + \
                        str(datetime_obj.day).zfill(2) + ' ' + \
                        str(datetime_obj.hour).zfill(2) + ':' + \
                        str(datetime_obj.minute).zfill(2)

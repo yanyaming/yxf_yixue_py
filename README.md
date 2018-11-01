@@ -29,6 +29,7 @@ yxf_yixue_py : 易学软件
 
 python==3.6  
 openpyxl  
+web.py==0.40.dev0  
 
 python3解决方案：  
 安装python3（已整理安装脚本）。  
@@ -37,7 +38,7 @@ python3解决方案：
 	#!/usr/bin/python3   
 	# -*- coding: utf-8 -*-
 
-## 安装与卸载（安装为Python系统模块）
+## 使用方法1：安装为Python系统模块
 
 install:   
 
@@ -45,13 +46,19 @@ install:
 	
 uninstall:   
 
-	pip3 uninstall [thispackname]
+	pip3 uninstall yxf-yixue
+	
+## 使用方法2：作为服务运行
+
+runserver:   
+
+	python3 server.py  或者  nohup python3 server.py > yxf_yixue.log 2>&1 &
 
 ## 输出内容
 
 ### API可定制输出  
 
-python字典可转json，例（金口诀）：  
+例（金口诀）：  
 
 	{
 		'占时': {

@@ -9,7 +9,7 @@ class JinkoujueApi:
     def __init__(self):
         self.p = None
 
-    def paipan(self, datetime_obj, difen, yuejiang=None, zhanshi=None):
+    def paipan(self, datetime_obj, difen='子', yuejiang=None, zhanshi=None):
         a = WannianliApi()
         self.p = Paipan()
         return_list = a.get_Calendar(datetime_obj)
@@ -20,4 +20,5 @@ class JinkoujueApi:
         if self.p is None:
             print('请先调用paipan()排盘后再使用本函数！')
             return None
-        self.p.output()
+        else:
+            return self.p.output()

@@ -19,7 +19,7 @@ class Paipan:
         self.Liushijiazi = self.db.get_tabledict_dict("[基础表-六十甲子]")
         self.Luoshu = self.db.get_tabledict_dict("[基础表-洛书九宫格]")
 
-    def paipan(self, lunar, ganzhi, qiguafangfa='标准时间起卦', qiguashuru=None, naganzhifangfa='传统京氏'):
+    def paipan(self, lunar, ganzhi, qiguafangfa, qiguashuru, naganzhifangfa):
         # 阴阳爻符号
         self.yinyangYao = ['▅▅  ▅▅', '▅▅▅▅▅']
         # 六爻盘格式
@@ -113,7 +113,7 @@ class Paipan:
                     map_str += '\t'
                 if i[0:1] == '2':
                     map_str += '\n'
-        print(map_str)
+        return map_str
 
     def qigua_shijianqigua(self, lunar, ganzhi, qiguashuru, qiguafangfa):
         # 时间起卦法
@@ -250,10 +250,10 @@ class Paipan:
         biangua_shang_code = None
         biangua_xia_code = None
         for i in self.Bagua.keys():
-            if bengua_shang_num == self.Bagua[i]['先天卦数']:
+            if bengua_shang_num == int(self.Bagua[i]['先天卦数']):
                 bengua_shang = i
                 bengua_shang_code = eval(self.Bagua[i]['二进制'])
-            if bengua_xia_num == self.Bagua[i]['先天卦数']:
+            if bengua_xia_num == int(self.Bagua[i]['先天卦数']):
                 bengua_xia = i
                 bengua_xia_code = eval(self.Bagua[i]['二进制'])
         # 求本卦的六十四卦

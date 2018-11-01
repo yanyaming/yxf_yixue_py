@@ -13,14 +13,16 @@ class LiuyaoApi:
         a = WannianliApi()
         self.p = Paipan()
         return_list = a.get_Calendar(datetime_obj)
-        res = self.p.paipan(return_list[1], return_list[3], qiguafangfa=qiguafangfa, qiguashuru=qiguashuru, naganzhifangfa=naganzhifangfa)
+        res = self.p.paipan(return_list[1][0], return_list[3], qiguafangfa=qiguafangfa, qiguashuru=qiguashuru, naganzhifangfa=naganzhifangfa)
+        # print(res)
         return res
 
     def print_pan(self):
         if self.p is None:
             print('请先调用paipan()排盘后再使用本函数！')
             return None
-        self.p.output()
+        else:
+            return self.p.output()
 
     # def get_chuantongfenxi(self):
     #     if self.p is None:

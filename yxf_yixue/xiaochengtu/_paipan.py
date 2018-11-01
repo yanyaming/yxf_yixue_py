@@ -22,7 +22,7 @@ class Paipan:
         self.Liushijiazi = self.db.get_tabledict_dict("[基础表-六十甲子]")
         self.Luoshu = self.db.get_tabledict_dict("[基础表-洛书九宫格]")
 
-    def paipan(self, lunar, ganzhi, lingdongshu=None, shuziqigua=None, guizangfangfa='四正'):
+    def paipan(self, lunar, ganzhi, lingdongshu, shuziqigua, guizangfangfa):
         # 起卦
         if shuziqigua is None:
             gua, gua_code = self.qigua_shijianqigua(lunar, ganzhi, lingdongshu)
@@ -104,7 +104,7 @@ class Paipan:
                 map_str += '\n'
                 map_str += '------\t------\t------\t------\t------\t------'
                 map_str += '\n'
-        print(map_str)
+        return map_str
 
     def qigua_shijianqigua(self, lunar, ganzhi, lingdongshu):
         # 时间起卦法

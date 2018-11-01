@@ -22,7 +22,7 @@ class Paipan:
         self.Liushijiazi = self.db.get_tabledict_dict("[基础表-六十甲子]")
         self.Luoshu = self.db.get_tabledict_dict("[基础表-洛书九宫格]")
 
-    def paipan(self, ganzhi, difen, yuejiang=None, zhanshi=None):
+    def paipan(self, ganzhi, difen, yuejiang, zhanshi):
         # 时间信息
         self.Zhanshi = {'占时': {}, '月将': {}}
         # 盘
@@ -130,7 +130,7 @@ class Paipan:
         map_str += ('+' if self.Ke['地分']['阴阳'] == '阳' else '-')
         map_str += self.Ke['地分']['旺衰']
         map_str += '\n'
-        print(map_str)
+        return map_str
 
     def qike_jiangshen(self, yuejiang, zhanshi, difen):
         # 月将加时起天盘
