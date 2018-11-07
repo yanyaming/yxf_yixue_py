@@ -52,7 +52,7 @@ uninstall:
 
 runserver:   
 
-	python3 server.py  或者  nohup python3 server.py > yxf_yixue.log 2>&1 &
+	python3 server.py  或者  ./start_server.sh
 
 ## 输出内容
 
