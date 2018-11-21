@@ -5,5 +5,5 @@ cd $curpath
 nohup python3 server.py > server.log 2>&1 &
 cd ..
 echo "server is running in background"
-echo "yixue:port=8002(local)"
+echo "yixue:port=8002(public)"
 exit 0

@@ -46,7 +46,7 @@ def return_type(res=None,op='json',message='poor query!'):
             json_result = res
     else:
         json_result = err_output
-	web.header("Access-Control-Allow-Origin", "*")
+    web.header("Access-Control-Allow-Origin", "*")
     return json_result
 
 
