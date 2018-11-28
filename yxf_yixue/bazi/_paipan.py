@@ -201,6 +201,8 @@ class Paipan:
         self.Baziquanju['身宫'] = None
         # 命卦：以出生时间起六爻卦，只取卦名
         self.Baziquanju['命卦'] = None
+        # 生肖：
+        # 星座：
 
     def sizhu(self):
         for zhu in self.Bazisizhu.keys():

@@ -10,6 +10,8 @@ WEB_ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(WEB_ROOT)
 from yxf_yixue import WannianliApi,BaziApi,JinkoujueApi,XiaochengtuApi,LiuyaoApi,update_dbdata
 
+
+# 网址路由
 urls = (
     '/wannianli', 'wannianli',
     '/bazi', 'bazi',
@@ -19,7 +21,8 @@ urls = (
 )
 
 
-def get_datetime(date,time):
+# 中间件：接收到请求后最先执行，返回日期时间对象，若出错则直接响应错误代码
+def middleware_check_datetime(date,time):
     if date and time:
         dt_str = date + ' ' + time
         try:
@@ -30,14 +33,15 @@ def get_datetime(date,time):
                 dt_obj = datetime.datetime.strptime(dt_str, '%Y/%m/%d %H:%M')
                 return dt_obj
             else:
-                return return_type(res=None,message='日期时间格式错误')  # 没有匹配到-和/
+                return middleware_before_return(res=None,message='日期时间格式错误')  # 没有匹配到-和/
         except Exception as e:
-            return return_type(res=None,message='日期时间转换出错')  # 转换出错
+            return middleware_before_return(res=None,message='日期时间转换出错')  # 转换出错
     else:
-        return return_type(res=None,message='没有输入日期时间参数')  # 没有此参数
+        return middleware_before_return(res=None,message='没有输入日期时间参数')  # 没有此参数
 
 
-def return_type(res=None,op='json',message='poor query!'):
+# 中间件：判断应该如何返回给客户端，完成响应
+def middleware_before_return(res=None,op='json',message='错误的请求'):
     err_output = {'status': 400, 'message': message}
     if res:
         if op == 'json':
@@ -50,6 +54,7 @@ def return_type(res=None,op='json',message='poor query!'):
     return json_result
 
 
+# 视图
 class wannianli(object):
     def GET(self):
         inputs = web.input()
@@ -58,7 +63,7 @@ class wannianli(object):
         op = inputs.get('op', None)  # 返回何种格式。固定选项：json/str
         date = inputs.get('date', None)  # 提交的查询日期。固定格式：YYYY-mm-dd（若格式不严谨可二次处理，例如YYYY-M-D,YYYY/mm/dd）
         time = inputs.get('time', None)  # 提交的查询时间。固定格式：HH:MM
-        dt_obj = get_datetime(date,time)
+        dt_obj = middleware_check_datetime(date,time)
         if not isinstance(dt_obj,datetime.datetime):
             return dt_obj
         # 可选参数
@@ -99,9 +104,10 @@ class wannianli(object):
                 res = c.get_Realsolar(int(jingdu))
         except Exception as e:
             pass
-        return return_type(res,op)
+        return middleware_before_return(res,op)
 
 
+# 视图
 class bazi(object):
     def GET(self):
         inputs = web.input()
@@ -110,7 +116,7 @@ class bazi(object):
         op = inputs.get('op', None)  # 返回何种格式。固定选项：json/str
         date = inputs.get('date', None)  # 提交的查询日期。固定格式：YYYY-mm-dd（若格式不严谨可二次处理，例如YYYY-M-D,YYYY/mm/dd）
         time = inputs.get('time', None)  # 提交的查询时间。固定格式：HH:MM
-        dt_obj = get_datetime(date, time)
+        dt_obj = middleware_check_datetime(date, time)
         if not isinstance(dt_obj,datetime.datetime):
             return dt_obj
         # 可选参数
@@ -120,15 +126,27 @@ class bazi(object):
         c = BaziApi()
         res = None
         try:
-            if subop is None or subop == 'paipan':
+            if subop is None or subop == '排盘':
                 res = c.paipan(dt_obj, xingbie=xingbie)
                 if op == 'str':
                     res = c.print_pan()
+            elif subop == '传统分析':
+                c.paipan(dt_obj, xingbie=xingbie)
+                res = c.get_chuantongfenxi()
+                if op == 'str':
+                    res = c.print_pan()
+            elif subop == '量化分析':
+                c.paipan(dt_obj, xingbie=xingbie)
+                res = c.get_lianghuafenxi()
+                if op == 'str':
+                    res = c.print_pan()
         except Exception as e:
-            pass
-        return return_type(res, op)
+            print(e)
+            raise e
+        return middleware_before_return(res, op)
 
 
+# 视图
 class jinkoujue(object):
     def GET(self):
         inputs = web.input()
@@ -137,7 +155,7 @@ class jinkoujue(object):
         op = inputs.get('op', None)  # 返回何种格式。固定选项：json/str
         date = inputs.get('date', None)  # 提交的查询日期。固定格式：YYYY-mm-dd（若格式不严谨可二次处理，例如YYYY-M-D,YYYY/mm/dd）
         time = inputs.get('time', None)  # 提交的查询时间。固定格式：HH:MM
-        dt_obj = get_datetime(date, time)
+        dt_obj = middleware_check_datetime(date, time)
         if not isinstance(dt_obj,datetime.datetime):
             return dt_obj
         # 可选参数
@@ -155,9 +173,10 @@ class jinkoujue(object):
                     res = c.print_pan()
         except Exception as e:
             pass
-        return return_type(res, op)
+        return middleware_before_return(res, op)
 
 
+# 视图
 class liuyao(object):
     def GET(self):
         inputs = web.input()
@@ -166,7 +185,7 @@ class liuyao(object):
         op = inputs.get('op', None)  # 返回何种格式。固定选项：json/str
         date = inputs.get('date', None)  # 提交的查询日期。固定格式：YYYY-mm-dd（若格式不严谨可二次处理，例如YYYY-M-D,YYYY/mm/dd）
         time = inputs.get('time', None)  # 提交的查询时间。固定格式：HH:MM
-        dt_obj = get_datetime(date, time)
+        dt_obj = middleware_check_datetime(date, time)
         if not isinstance(dt_obj,datetime.datetime):
             return dt_obj
         # 可选参数
@@ -184,9 +203,10 @@ class liuyao(object):
                     res = c.print_pan()
         except Exception as e:
             pass
-        return return_type(res, op)
+        return middleware_before_return(res, op)
 
 
+# 视图
 class xiaochengtu(object):
     def GET(self):
         inputs = web.input()
@@ -195,7 +215,7 @@ class xiaochengtu(object):
         op = inputs.get('op', None)  # 返回何种格式。固定选项：json/str
         date = inputs.get('date', None)  # 提交的查询日期。固定格式：YYYY-mm-dd（若格式不严谨可二次处理，例如YYYY-M-D,YYYY/mm/dd）
         time = inputs.get('time', None)  # 提交的查询时间。固定格式：HH:MM
-        dt_obj = get_datetime(date, time)
+        dt_obj = middleware_check_datetime(date, time)
         if not isinstance(dt_obj,datetime.datetime):
             return dt_obj
         # 可选参数
@@ -213,8 +233,10 @@ class xiaochengtu(object):
                     res = c.print_pan()
         except Exception as e:
             pass
-        return return_type(res, op)
+        return middleware_before_return(res, op)
 
+
+# 运行服务
 if __name__ == '__main__':
     sys.argv.append('0.0.0.0:8002')
     app = web.application(urls, globals())
