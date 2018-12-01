@@ -297,6 +297,10 @@ class Paipan:
         self.Wuxing['土']['旺衰'] = table['土'][self.Bazibazi['月支']['宫主']]
         self.Wuxing['金']['旺衰'] = table['金'][self.Bazibazi['月支']['宫主']]
         self.Wuxing['水']['旺衰'] = table['水'][self.Bazibazi['月支']['宫主']]
+        for tiangan in self.Tiangan.keys():
+            for wuxing in self.Wuxing.keys():
+                if self.Tiangan[tiangan]['五行'] == wuxing:
+                    self.Tiangan[tiangan]['旺衰'] = self.Wuxing[wuxing]['旺衰']
 
     def rigan_shierzhangsheng(self):
         table = self.db.get_tabledict_dict('[关联表-天干十二长生运]')
