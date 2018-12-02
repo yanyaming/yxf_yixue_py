@@ -213,88 +213,20 @@ class Paipan:
         # 天干五合：
         self.GZguanxi['天干五合'] = self.db2cdata.get_ganzhiguanxi(input=tiangan_count,type='天干五合')
         # 地支六冲：有冲得与冲去之分，反映在系数里，系数为负即为冲去。
-        dizhi_count = {}
-        for i in self.Dizhi.keys():
-            dizhi_count[i] = {'次数': 0}
-        table_liuchong = self.db.get_tabledict_dict('[关联表-地支六冲]')
-        self.GZguanxi['地支六冲'] = {}
-        for i in table_liuchong.values():
-            if i['地支1'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']] \
-                    and i['地支2'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']]:
-                self.GZguanxi['地支六冲'][i['地支1'] + i['地支2']] = {}
-                self.GZguanxi['地支六冲'][i['地支1'] + i['地支2']]['化'] = i['冲化天干']
-                self.GZguanxi['地支六冲'][i['地支1'] + i['地支2']]['化系数'] = i['系数']
+        self.GZguanxi['地支六冲'] = self.db2cdata.get_ganzhiguanxi(input=dizhi_count, type='地支六冲')
         # 地支六合：
-        table_liuhe = self.db.get_tabledict_dict('[关联表-地支六合]')
-        self.GZguanxi['地支六合'] = {}
-        for i in table_liuhe.values():
-            if i['地支1'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']] \
-                    and i['地支2'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']]:
-                self.GZguanxi['地支六合'][i['地支1'] + i['地支2']] = {}
-                self.GZguanxi['地支六合'][i['地支1'] + i['地支2']]['化'] = i['合化天干']
-                self.GZguanxi['地支六合'][i['地支1'] + i['地支2']]['化系数'] = '1.0'
-        # 地支三会：
-        table_sanhui = self.db.get_tabledict_dict('[关联表-地支三会]')
-        self.GZguanxi['地支三会'] = {}
-        for i in table_sanhui.values():
-            if i['地支1'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']] \
-                    and i['地支2'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']] \
-                    and i['地支3'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']]:
-                self.GZguanxi['地支三会'][i['地支1'] + i['地支2'] + i['地支3']] = {}
-                self.GZguanxi['地支三会'][i['地支1'] + i['地支2'] + i['地支3']]['化1'] = i['合会天干1']
-                self.GZguanxi['地支三会'][i['地支1'] + i['地支2'] + i['地支3']]['化1系数'] = i['合会天干1系数']
-                self.GZguanxi['地支三会'][i['地支1'] + i['地支2'] + i['地支3']]['化2'] = i['合会天干2']
-                self.GZguanxi['地支三会'][i['地支1'] + i['地支2'] + i['地支3']]['化2系数'] = i['合会天干2系数']
+        self.GZguanxi['地支六合'] = self.db2cdata.get_ganzhiguanxi(input=dizhi_count, type='地支六合')
+        # 地支三会：优先考察三会，若不成则考察半会
+        self.GZguanxi['地支三会'],self.GZguanxi['地支半会'] = self.db2cdata.get_ganzhiguanxi(input=dizhi_count, type='地支三会')
         # 地支三合：优先考察三合，若没有三合再看半合
-        table_sanhe = self.db.get_tabledict_dict('[关联表-地支三合]')
-        self.GZguanxi['地支三合'] = {}
-        self.GZguanxi['地支生半合'] = {}
-        self.GZguanxi['地支墓半合'] = {}
-        for i in table_sanhe.values():
-            if i['地支1'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']] \
-                    and i['地支2'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']] \
-                    and i['地支3'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']]:
-                self.GZguanxi['地支三合'][i['地支1'] + i['地支2'] + i['地支3']] = {}
-                self.GZguanxi['地支三合'][i['地支1'] + i['地支2'] + i['地支3']]['化'] = i['合化天干']
-                self.GZguanxi['地支三合'][i['地支1'] + i['地支2'] + i['地支3']]['化系数'] = '1.0'
-            else:
-                # 地支生半合：
-                if i['地支1'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']] \
-                        and i['地支2'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']]:
-                    self.GZguanxi['地支生半合'][i['地支1'] + i['地支2']] = {}
-                    self.GZguanxi['地支生半合'][i['地支1'] + i['地支2']]['化'] = i['合化天干']
-                    self.GZguanxi['地支生半合'][i['地支1'] + i['地支2']]['化系数'] = '0.5'
-                # 地支墓半合：
-                if i['地支2'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']] \
-                        and i['地支3'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']]:
-                    self.GZguanxi['地支墓半合'][i['地支2'] + i['地支3']] = {}
-                    self.GZguanxi['地支墓半合'][i['地支2'] + i['地支3']]['化'] = i['合化天干']
-                    self.GZguanxi['地支墓半合'][i['地支2'] + i['地支3']]['化系数'] = '0.5'
+        self.GZguanxi['地支三合'],self.GZguanxi['地支生半合'],self.GZguanxi['地支墓半合'] = self.db2cdata.get_ganzhiguanxi(input=dizhi_count, type='地支三合')
         # 刑破害为定性分析，暂时不需要定量。
         # 地支三刑：
-        self.GZguanxi['地支三刑'] = {}  # 三刑
-        table_sanxing = self.db.get_tabledict_dict('[关联表-地支三刑]')
-        for i in table_sanxing.values():
-            if i['地支1'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']] \
-                    and i['地支2'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']]:
-                if i['地支1'] != i['地支2']:
-                    self.GZguanxi['地支三刑'][i['地支1'] + i['地支2']] = {}
-                elif dizhi_count[i['地支1']]['次数'] in [2, 4]:
-                    self.GZguanxi['地支三刑'][i['地支1'] + i['地支2']] = {}
+        self.GZguanxi['地支三刑'] = self.db2cdata.get_ganzhiguanxi(input=dizhi_count, type='地支三刑')
         # 地支六破：
-        self.GZguanxi['地支六破'] = {}
-        table_liupo = self.db.get_tabledict_dict('[关联表-地支六破]')
-        for i in table_liupo.values():
-            if i['地支1'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']] \
-                    and i['地支2'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']]:
-                self.GZguanxi['地支六破'][i['地支1'] + i['地支2']] = {}
+        self.GZguanxi['地支六破'] = self.db2cdata.get_ganzhiguanxi(input=dizhi_count, type='地支六破')
         # 地支六害：
-        self.GZguanxi['地支六害'] = {}
-        table_liuhai = self.db.get_tabledict_dict('[关联表-地支六害]')
-        for i in table_liuhai.values():
-            if i['地支1'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']] \
-                    and i['地支2'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']]:
-                self.GZguanxi['地支六害'][i['地支1'] + i['地支2']] = {}
+        self.GZguanxi['地支六害'] = self.db2cdata.get_ganzhiguanxi(input=dizhi_count, type='地支六害')
 
     def dayun(self, dt, solarTermJie, xingbie):
         # 确定大运。从所生之月建依次按顺逆序得出。男年干阳、女年干阴顺行；男年干阴、女年干阳逆行。

@@ -95,12 +95,17 @@ class Lianghuafenxi(Chuantongfenxi):
                         self.pan['量化分析']['天干'][tiangan]['权重'] += float(self.pan['八字单字'][name]['藏干']['藏干3系数'])
             # 干支关系转化天干
             for guanxi in self.pan['干支关系']:  # 根据干支关系化生的天干及其系数，更新到十神量化值
-                for hua in self.pan['干支关系'][guanxi]:
+                for zuhe in self.pan['干支关系'][guanxi]:
                     for tiangan in self.pan['量化分析']['天干']:
-                        if self.pan['干支关系'][guanxi][hua].get('化', None):
-                            if tiangan == self.pan['干支关系'][guanxi][hua]['化']:
-                                self.pan['量化分析']['天干'][tiangan]['权重'] += float(
-                                    self.pan['干支关系'][guanxi][hua]['化系数'])
+                        if self.pan['干支关系'][guanxi][zuhe].get('化', None):
+                            if tiangan == self.pan['干支关系'][guanxi][zuhe]['化']:
+                                self.pan['量化分析']['天干'][tiangan]['权重'] += float(self.pan['干支关系'][guanxi][zuhe]['化系数'])
+                        if self.pan['干支关系'][guanxi][zuhe].get('化1', None):
+                            if tiangan == self.pan['干支关系'][guanxi][zuhe]['化1']:
+                                self.pan['量化分析']['天干'][tiangan]['权重'] += float(self.pan['干支关系'][guanxi][zuhe]['化1系数'])
+                        if self.pan['干支关系'][guanxi][zuhe].get('化2', None):
+                            if tiangan == self.pan['干支关系'][guanxi][zuhe]['化2']:
+                                self.pan['量化分析']['天干'][tiangan]['权重'] += float(self.pan['干支关系'][guanxi][zuhe]['化2系数'])
         # 旺衰权重（依月支）
         for tiangan in self.pan['量化分析']['天干']:
             for item in self.pan['量化分析']['旺衰权重']:
@@ -187,7 +192,6 @@ class Lianghuafenxi(Chuantongfenxi):
         # 日干极强从强，极弱从弱
         # 日干中和，多财印需要官杀通关，多印食需要比劫通关，多官比需要印枭通关
         # 日干中和且不需要通关，木火性燥取金水，金水性寒取木火
-
         if self.pan['量化分析']['旺衰']['日干'] in ['弱', '偏弱']:
             pass
         elif self.pan['量化分析']['旺衰']['日干'] in ['强', '偏强']:

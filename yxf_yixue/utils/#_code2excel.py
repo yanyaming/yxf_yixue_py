@@ -3,7 +3,7 @@
 import datetime
 
 """
-此代码手动获取打印输出添加到Excel表中更为方便，后期不再使用
+此代码单独执行，手动获取打印输出添加到Excel表中更为方便，后期不再使用
 """
 
 
@@ -130,3 +130,7 @@ class Code2Excel:
             return 29
         else:
             return 0  # 其他编码值表示不是闰月
+
+
+if __name__ == '__main__':
+    pass

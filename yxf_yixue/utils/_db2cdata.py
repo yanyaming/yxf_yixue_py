@@ -1,6 +1,14 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
+import copy
 from ._db import Db
+
+
+'''
+通用数术处理：
+    六亲十神判别；
+    干支合化刑冲破害关系判别（传递字典数据时需要深拷贝，否则会篡改原数据）；
+'''
 
 
 class Db2Cdata:
@@ -53,7 +61,7 @@ class Db2Cdata:
     def get_wuxing_shishen(self, input_x, return_type='正财'):
         # 输入五行、天干、地支、八卦，通过本函数自动判断，返回对应生克关系的五行、天干、地支、八卦，输入什么类型就返回什么类型
         # 要考虑阴阳异同，所以参数使用八字六亲
-        # 其中五行本身无阴阳之分，在输入时第一个字符添加阴阳，返回值同理；八卦某五行只有一个则不管正偏均返回
+        # 其中五行本身无阴阳之分，在输入时第一个字符添加阴阳，返回值同理；八卦某五行只有一个则不管正偏均返回同一个结果
         Wuxing = self.Wuxing.copy()
         Tiangan = self.Tiangan.copy()
         Dizhi = self.Dizhi.copy()
@@ -217,12 +225,14 @@ class Db2Cdata:
                 return return_bagua_list[0]['卦名']
 
     def get_ganzhiguanxi(self,input,type='天干五合'):
+        # 输入带有统计次数的以天干或地支为键的字典，搜索字典数据中的干支关系并把关系内容返回
+        # 例：input={'子':{'次数':1},'丑':{'次数':0},午:{'次数':2}...},type='地支六冲';return={'子午':{'化':'丁','化系数':'-1'}}
         try:
             if type == '天干五合':
                 guanxi = {}
-                tiangan = input
-                table_hehua = self.db.get_tabledict_dict('[关联表-天干五合]')
-                for i in table_hehua.values():
+                tiangan = copy.deepcopy(input)
+                table = self.db.get_tabledict_dict('[关联表-天干五合]')
+                for i in table.values():
                     if tiangan[i['天干1']]['次数'] >= 1 and tiangan[i['天干2']]['次数'] >= 1:
                         tiangan[i['天干1']]['次数'] -= 1
                         tiangan[i['天干2']]['次数'] -= 1
@@ -231,18 +241,119 @@ class Db2Cdata:
                         guanxi[i['天干1'] + i['天干2']]['化系数'] = '1.0'
                 return guanxi
             elif type == '地支六冲':
-                pass
+                guanxi = {}
+                dizhi = copy.deepcopy(input)
+                table = self.db.get_tabledict_dict('[关联表-地支六冲]')
+                for i in table.values():
+                    if dizhi[i['地支1']]['次数'] >= 1 and dizhi[i['地支2']]['次数'] >= 1:
+                        dizhi[i['地支1']]['次数'] -= 1
+                        dizhi[i['地支2']]['次数'] -= 1
+                        guanxi[i['地支1'] + i['地支2']] = {}
+                        guanxi[i['地支1'] + i['地支2']]['化'] = i['冲化天干']
+                        guanxi[i['地支1'] + i['地支2']]['化系数'] = i['系数']
+                return guanxi
             elif type == '地支六合':
-                pass
+                guanxi = {}
+                dizhi = copy.deepcopy(input)
+                table = self.db.get_tabledict_dict('[关联表-地支六合]')
+                for i in table.values():
+                    if dizhi[i['地支1']]['次数'] >= 1 and dizhi[i['地支2']]['次数'] >= 1:
+                        dizhi[i['地支1']]['次数'] -= 1
+                        dizhi[i['地支2']]['次数'] -= 1
+                        guanxi[i['地支1'] + i['地支2']] = {}
+                        guanxi[i['地支1'] + i['地支2']]['化'] = i['合化天干']
+                        guanxi[i['地支1'] + i['地支2']]['化系数'] = '1.0'
+                return guanxi
             elif type == '地支三会':
-                pass
+                guanxi = {}
+                guanxi_banhui = {}
+                dizhi = copy.deepcopy(input)
+                table = self.db.get_tabledict_dict('[关联表-地支三会]')
+                for i in table.values():
+                    if dizhi[i['地支1']]['次数'] >= 1 and dizhi[i['地支2']]['次数'] >= 1 and dizhi[i['地支3']]['次数'] >= 1:
+                        dizhi[i['地支1']]['次数'] -= 1
+                        dizhi[i['地支2']]['次数'] -= 1
+                        dizhi[i['地支3']]['次数'] -= 1
+                        guanxi[i['地支1'] + i['地支2'] + i['地支3']] = {}
+                        guanxi[i['地支1'] + i['地支2'] + i['地支3']]['化1'] = i['合会天干1']
+                        guanxi[i['地支1'] + i['地支2'] + i['地支3']]['化1系数'] = i['合会天干1系数']
+                        guanxi[i['地支1'] + i['地支2'] + i['地支3']]['化2'] = i['合会天干2']
+                        guanxi[i['地支1'] + i['地支2'] + i['地支3']]['化2系数'] = i['合会天干2系数']
+                    else:
+                        # 地支半会（缺最后的土）：
+                        if dizhi[i['地支1']]['次数'] >= 1 and dizhi[i['地支2']]['次数'] >= 1:
+                            dizhi[i['地支1']]['次数'] -= 1
+                            dizhi[i['地支2']]['次数'] -= 1
+                            guanxi_banhui[i['地支1'] + i['地支2']] = {}
+                            guanxi_banhui[i['地支1'] + i['地支2']]['化'] = i['合会天干']
+                            guanxi_banhui[i['地支1'] + i['地支2']]['化系数'] = i['合会天干系数']
+                return guanxi,guanxi_banhui
             elif type == '地支三合':
-                pass
+                guanxi = {}
+                guanxi_shengbanhe = {}
+                guanxi_mubanhe = {}
+                dizhi = copy.deepcopy(input)
+                table = self.db.get_tabledict_dict('[关联表-地支三合]')
+                for i in table.values():
+                    # 地支完备三合：
+                    if dizhi[i['地支1']]['次数'] >= 1 and dizhi[i['地支2']]['次数'] >= 1 and dizhi[i['地支3']]['次数'] >= 1:
+                        dizhi[i['地支1']]['次数'] -= 1
+                        dizhi[i['地支2']]['次数'] -= 1
+                        dizhi[i['地支3']]['次数'] -= 1
+                        guanxi[i['地支1'] + i['地支2'] + i['地支3']] = {}
+                        guanxi[i['地支1'] + i['地支2'] + i['地支3']]['化'] = i['合化天干']
+                        guanxi[i['地支1'] + i['地支2'] + i['地支3']]['化系数'] = '1.0'
+                    else:
+                        # 地支生半合：
+                        if dizhi[i['地支1']]['次数'] >= 1 and dizhi[i['地支2']]['次数'] >= 1:
+                            dizhi[i['地支1']]['次数'] -= 1
+                            dizhi[i['地支2']]['次数'] -= 1
+                            guanxi_shengbanhe[i['地支1'] + i['地支2']] = {}
+                            guanxi_shengbanhe[i['地支1'] + i['地支2']]['化'] = i['合化天干']
+                            guanxi_shengbanhe[i['地支1'] + i['地支2']]['化系数'] = '0.5'
+                        # 地支墓半合：
+                        if dizhi[i['地支2']]['次数'] >= 1 and dizhi[i['地支3']]['次数'] >= 1:
+                            dizhi[i['地支2']]['次数'] -= 1
+                            dizhi[i['地支3']]['次数'] -= 1
+                            guanxi_mubanhe[i['地支2'] + i['地支3']] = {}
+                            guanxi_mubanhe[i['地支2'] + i['地支3']]['化'] = i['合化天干']
+                            guanxi_mubanhe[i['地支2'] + i['地支3']]['化系数'] = '0.5'
+                return guanxi,guanxi_shengbanhe,guanxi_mubanhe
             elif type == '地支三刑':
-                pass
+                guanxi = {}
+                dizhi = copy.deepcopy(input)
+                table = self.db.get_tabledict_dict('[关联表-地支三刑]')
+                for i in table.values():
+                    if dizhi[i['地支1']]['次数'] >= 1 and dizhi[i['地支2']]['次数'] >= 1:
+                        if i['地支1'] == i['地支2']:  # 自刑
+                            if dizhi[i['地支1']]['次数'] >= 2:
+                                dizhi[i['地支1']]['次数'] -= 1
+                                dizhi[i['地支2']]['次数'] -= 1
+                                guanxi[i['地支1'] + i['地支2']] = {}
+                        elif i['地支1'] != i['地支2']:  # 互刑
+                            dizhi[i['地支1']]['次数'] -= 1
+                            dizhi[i['地支2']]['次数'] -= 1
+                            guanxi[i['地支1'] + i['地支2']] = {}
+                return guanxi
             elif type == '地支六破':
-                pass
+                guanxi = {}
+                dizhi = copy.deepcopy(input)
+                table = self.db.get_tabledict_dict('[关联表-地支六破]')
+                for i in table.values():
+                    if dizhi[i['地支1']]['次数'] >= 1 and dizhi[i['地支2']]['次数'] >= 1:
+                        dizhi[i['地支1']]['次数'] -= 1
+                        dizhi[i['地支2']]['次数'] -= 1
+                        guanxi[i['地支1'] + i['地支2']] = {}
+                return guanxi
             elif type == '地支六害':
-                pass
+                guanxi = {}
+                dizhi = copy.deepcopy(input)
+                table = self.db.get_tabledict_dict('[关联表-地支六害]')
+                for i in table.values():
+                    if dizhi[i['地支1']]['次数'] >= 1 and dizhi[i['地支2']]['次数'] >= 1:
+                        dizhi[i['地支1']]['次数'] -= 1
+                        dizhi[i['地支2']]['次数'] -= 1
+                        guanxi[i['地支1'] + i['地支2']] = {}
+                return guanxi
         except:
-            print('输入错误！')
+            print('未知错误！')
