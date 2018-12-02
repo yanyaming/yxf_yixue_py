@@ -215,3 +215,34 @@ class Db2Cdata:
                         return i['卦名']
             else:
                 return return_bagua_list[0]['卦名']
+
+    def get_ganzhiguanxi(self,input,type='天干五合'):
+        try:
+            if type == '天干五合':
+                guanxi = {}
+                tiangan = input
+                table_hehua = self.db.get_tabledict_dict('[关联表-天干五合]')
+                for i in table_hehua.values():
+                    if tiangan[i['天干1']]['次数'] >= 1 and tiangan[i['天干2']]['次数'] >= 1:
+                        tiangan[i['天干1']]['次数'] -= 1
+                        tiangan[i['天干2']]['次数'] -= 1
+                        guanxi[i['天干1'] + i['天干2']] = {}
+                        guanxi[i['天干1'] + i['天干2']]['化'] = i['合化天干']
+                        guanxi[i['天干1'] + i['天干2']]['化系数'] = '1.0'
+                return guanxi
+            elif type == '地支六冲':
+                pass
+            elif type == '地支六合':
+                pass
+            elif type == '地支三会':
+                pass
+            elif type == '地支三合':
+                pass
+            elif type == '地支三刑':
+                pass
+            elif type == '地支六破':
+                pass
+            elif type == '地支六害':
+                pass
+        except:
+            print('输入错误！')

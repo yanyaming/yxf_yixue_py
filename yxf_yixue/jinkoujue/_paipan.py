@@ -72,66 +72,6 @@ class Paipan:
         self.qike_nayin()
         return {'占时': self.Zhanshi, '盘': self.Pan, '课': self.Ke}
 
-    def output(self):
-        map_str = ''
-        # 盘
-        map_str += '地盘：'
-        for i in self.Pan.keys():
-            map_str += self.Pan[i]['地盘']
-        map_str += '\n'
-        map_str += '天盘：'
-        for i in self.Pan.keys():
-            map_str += self.Pan[i]['天盘']
-        map_str += '\n'
-        map_str += '神盘：'
-        for i in self.Pan.keys():
-            map_str += self.Pan[i]['神盘']
-        map_str += '\n'
-        # 课
-        map_str += '月将：'
-        map_str += self.Zhanshi['月将']['干支']
-        map_str += '\n'
-        map_str += '占时：'
-        map_str += self.Zhanshi['占时']['干支']
-        map_str += '\n'
-        map_str += '人元：'
-        map_str += self.Ke['人元']['干支']
-        map_str += self.Ke['人元']['用神']
-        map_str += '\t'
-        map_str += self.Ke['人元']['五行']
-        map_str += ('+' if self.Ke['人元']['阴阳'] == '阳' else '-')
-        map_str += self.Ke['人元']['旺衰']
-        map_str += '\n'
-        map_str += '贵神：'
-        map_str += self.Ke['贵神']['干支']
-        map_str += self.Ke['贵神']['用神']
-        map_str += '\t'
-        map_str += self.Ke['贵神']['五行']
-        map_str += ('+' if self.Ke['贵神']['阴阳'] == '阳' else '-')
-        map_str += self.Ke['贵神']['旺衰']
-        map_str += ' '
-        map_str += self.Ke['贵神']['纳音']
-        map_str += '\n'
-        map_str += '将神：'
-        map_str += self.Ke['将神']['干支']
-        map_str += self.Ke['将神']['用神']
-        map_str += '\t'
-        map_str += self.Ke['将神']['五行']
-        map_str += ('+' if self.Ke['将神']['阴阳'] == '阳' else '-')
-        map_str += self.Ke['将神']['旺衰']
-        map_str += ' '
-        map_str += self.Ke['将神']['纳音']
-        map_str += '\n'
-        map_str += '地分：'
-        map_str += self.Ke['地分']['干支']
-        map_str += self.Ke['地分']['用神']
-        map_str += '\t'
-        map_str += self.Ke['地分']['五行']
-        map_str += ('+' if self.Ke['地分']['阴阳'] == '阳' else '-')
-        map_str += self.Ke['地分']['旺衰']
-        map_str += '\n'
-        return map_str
-
     def qike_jiangshen(self, yuejiang, zhanshi, difen):
         # 月将加时起天盘
         idx = self.dizhiName.index(yuejiang) - self.dizhiName.index(zhanshi)
@@ -339,3 +279,52 @@ class Paipan:
     def qike_nayin(self):
         self.Ke['贵神']['纳音'] = '纳音' + self.Liushijiazi[self.Ke['贵神']['干支'].split('（')[0]]['纳音五行']
         self.Ke['将神']['纳音'] = '纳音' + self.Liushijiazi[self.Ke['将神']['干支'].split('（')[0]]['纳音五行']
+
+    def output(self):
+        map_str = ''
+        # 盘
+        map_str += '地盘：'
+        for i in self.Pan.keys():
+            map_str += self.Pan[i]['地盘']
+        map_str += '\n'
+        map_str += '天盘：'
+        for i in self.Pan.keys():
+            map_str += self.Pan[i]['天盘']
+        map_str += '\n'
+        map_str += '神盘：'
+        for i in self.Pan.keys():
+            map_str += self.Pan[i]['神盘']
+        map_str += '\n'
+        # 课
+        map_str += '月将：'
+        map_str += str(self.Zhanshi['月将']['干支'])+'\n'
+        map_str += str(self.Zhanshi['占时']['干支'])+'\n'
+        map_str += '人元：'
+        map_str += str(self.Ke['人元']['干支'])
+        map_str += str(self.Ke['人元']['用神'])+'\t\t'
+        map_str += str(self.Ke['人元']['五行'])
+        map_str += ('+' if self.Ke['人元']['阴阳'] == '阳' else '-')
+        map_str += str(self.Ke['人元']['旺衰'])+'\n'
+        map_str += '贵神：'
+        map_str += str(self.Ke['贵神']['干支'])
+        map_str += str(self.Ke['贵神']['用神'])+'\t'
+        map_str += str(self.Ke['贵神']['五行'])
+        map_str += ('+' if self.Ke['贵神']['阴阳'] == '阳' else '-')
+        map_str += str(self.Ke['贵神']['旺衰'])
+        map_str += ' '
+        map_str += str(self.Ke['贵神']['纳音'])+'\n'
+        map_str += '将神：'
+        map_str += str(self.Ke['将神']['干支'])
+        map_str += str(self.Ke['将神']['用神'])+'\t'
+        map_str += str(self.Ke['将神']['五行'])
+        map_str += ('+' if self.Ke['将神']['阴阳'] == '阳' else '-')
+        map_str += str(self.Ke['将神']['旺衰'])
+        map_str += ' '
+        map_str += str(self.Ke['将神']['纳音'])+'\n'
+        map_str += '地分：'
+        map_str += str(self.Ke['地分']['干支'])
+        map_str += str(self.Ke['地分']['用神'])+'\t\t'
+        map_str += str(self.Ke['地分']['五行'])
+        map_str += ('+' if self.Ke['地分']['阴阳'] == '阳' else '-')
+        map_str += str(self.Ke['地分']['旺衰'])+'\n'
+        return map_str

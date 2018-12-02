@@ -12,10 +12,13 @@ class Chuantongfenxi:
     def fenxi(self, pan):
         self.pan = pan
         pan['标签'] = '传统分析'
+        self.wangshuai()
+        self.geju()
+        self.yongshen()
+        self.qushu()
         return self.pan
 
     def wangshuai(self):
-        # 不通过量化，而是通过特定的组合直接判断
         pass
 
     def geju(self):
@@ -29,20 +32,6 @@ class Chuantongfenxi:
 
     def output_addition(self):
         map_str = ''
-        map_str += '\n\n【传统分析】\n'
-        map_str += '六亲力量：'
-        map_str += '\n'
-        map_str += '十神力量：'
-        map_str += '\n'
-        map_str += '日主强弱：'
-        map_str += '\n'
-        map_str += '八字格局：'
-        map_str += '\n'
-        map_str += '八字喜忌：'
-        map_str += '\n'
-        map_str += '建议取用：'
-        map_str += '\n'
-        map_str += '建议取数：'
         return map_str
 
 
@@ -59,6 +48,8 @@ class Lianghuafenxi(Chuantongfenxi):
         self.pan['量化分析'] = {}
         self.pan['量化分析']['八字权重'] = self.db.get_tabledict_dict("[八字-八字权重]")
         self.pan['量化分析']['旺衰权重'] = self.db.get_tabledict_dict("[八字-旺衰权重]")
+        self.pan['量化分析']['八字传统定格表'] = self.db.get_tabledict_dict("[八字-八字传统定格表]")
+        # self.pan['量化分析']['八字量化取用表'] = self.db.get_tabledict_dict("[八字-八字量化取用表]")
         self.pan['量化分析']['五行'] = self.pan['五行']  # 存储五行（六亲）量化值
         self.pan['量化分析']['天干'] = self.pan['天干']  # 后面会把所有地支转化为天干，存储十神量化值
         self.wangshuai()
@@ -120,32 +111,94 @@ class Lianghuafenxi(Chuantongfenxi):
         for tiangan in self.pan['量化分析']['天干']:
             sum += self.pan['量化分析']['天干'][tiangan]['权重']
         for tiangan in self.pan['量化分析']['天干']:
-            self.pan['量化分析']['天干'][tiangan]['归一'] = round(self.pan['量化分析']['天干'][tiangan]['权重']/sum*100,2)
+            self.pan['量化分析']['天干'][tiangan]['归一'] = self.pan['量化分析']['天干'][tiangan]['权重']/sum*100
         # 六亲权重（十神的简单归并）
         for wuxing in self.pan['量化分析']['五行']:
             self.pan['量化分析']['五行'][wuxing]['权重'] = 0
             for tiangan in self.pan['量化分析']['天干']:
                 if self.pan['量化分析']['天干'][tiangan]['五行'] == wuxing:
                     self.pan['量化分析']['五行'][wuxing]['权重'] += self.pan['量化分析']['天干'][tiangan]['权重']
-            self.pan['量化分析']['五行'][wuxing]['归一'] = round(self.pan['量化分析']['五行'][wuxing]['权重']/sum*100,2)
+            self.pan['量化分析']['五行'][wuxing]['归一'] = self.pan['量化分析']['五行'][wuxing]['权重']/sum*100
+        # 正式开始记录旺衰
         self.pan['量化分析']['旺衰'] = {}
         # 己生助
         self.pan['量化分析']['旺衰']['己生助'] = 0
+        for wuxing in self.pan['量化分析']['五行']:
+            if self.pan['量化分析']['五行'][wuxing]['六亲'] in ['比劫', '印枭']:
+                self.pan['量化分析']['旺衰']['己生助'] += self.pan['量化分析']['五行'][wuxing]['归一']
         # 克泄耗
         self.pan['量化分析']['旺衰']['克泄耗'] = 0
+        for wuxing in self.pan['量化分析']['五行']:
+            if self.pan['量化分析']['五行'][wuxing]['六亲'] in ['官杀', '财星', '食伤']:
+                self.pan['量化分析']['旺衰']['克泄耗'] += self.pan['量化分析']['五行'][wuxing]['归一']
         # 阴气
         self.pan['量化分析']['旺衰']['阴气'] = 0
+        for tiangan in self.pan['量化分析']['天干']:
+            if tiangan in ['乙', '丁', '己', '辛', '癸']:
+                self.pan['量化分析']['旺衰']['阴气'] += self.pan['量化分析']['天干'][tiangan]['归一']
         # 阳气
         self.pan['量化分析']['旺衰']['阳气'] = 0
-        # 日主
-        self.pan['量化分析']['旺衰']['日干'] = 0
-        pass
+        for tiangan in self.pan['量化分析']['天干']:
+            if tiangan in ['甲', '丙', '戊', '庚', '壬']:
+                self.pan['量化分析']['旺衰']['阳气'] += self.pan['量化分析']['天干'][tiangan]['归一']
+        # 日主。这里的百分比是很重要的参数
+        self.pan['量化分析']['旺衰']['日干'] = '无'
+        if self.pan['量化分析']['旺衰']['己生助'] < 20:
+            self.pan['量化分析']['旺衰']['日干'] = '极弱'
+        elif 20 < self.pan['量化分析']['旺衰']['己生助'] <= 37:
+            self.pan['量化分析']['旺衰']['日干'] = '弱'
+        elif 37 < self.pan['量化分析']['旺衰']['己生助'] <= 47:
+            self.pan['量化分析']['旺衰']['日干'] = '偏弱'
+        elif 47 < self.pan['量化分析']['旺衰']['己生助'] <= 53:
+            self.pan['量化分析']['旺衰']['日干'] = '中'
+        elif 53 < self.pan['量化分析']['旺衰']['己生助'] <= 63:
+            self.pan['量化分析']['旺衰']['日干'] = '偏强'
+        elif 63 < self.pan['量化分析']['旺衰']['己生助'] <= 80:
+            self.pan['量化分析']['旺衰']['日干'] = '强'
+        elif 80 < self.pan['量化分析']['旺衰']['己生助']:
+            self.pan['量化分析']['旺衰']['日干'] = '极强'
+        # 取用格局
+        if self.pan['量化分析']['旺衰']['日干'] == '极弱':
+            self.pan['量化分析']['取用格局'] = '从弱'
+        elif self.pan['量化分析']['旺衰']['日干'] == '极强':
+            self.pan['量化分析']['取用格局'] = '从强'
+        elif self.pan['量化分析']['旺衰']['日干'] == '中':
+            self.pan['量化分析']['取用格局'] = '通关'
+        else:
+            self.pan['量化分析']['取用格局'] = '扶抑'
 
     def geju(self):
-        pass
+        self.pan['量化分析']['格局'] = ''
+        for tiangan in self.pan['量化分析']['八字传统定格表']:
+            if self.pan['八字单字']['日干']['宫主'] == tiangan:
+                geju_str = self.pan['量化分析']['八字传统定格表'][tiangan][self.pan['八字单字']['月支']['宫主']]
+                self.pan['量化分析']['格局'] = geju_str.split(' ')[0]
+                self.pan['量化分析']['格局序号'] = geju_str.split(' ')[1]
+                if len(geju_str.split(' ')) >= 3:
+                    self.pan['量化分析']['格局'] += geju_str.split(' ')[2]
 
     def yongshen(self):
-        pass
+        # 取用不能仅靠量化，需要分类：
+        # 日干弱多官杀，不能克制官杀，而应当泄掉官杀，所以取印枭
+        # 日干弱多财星，需要比劫来帮身
+        # 日干弱多食伤，需要印枭克制
+        # 日干强多印枭，需要财星泄日干与制印枭
+        # 日干强多比劫，需要官杀
+        # 日干极强从强，极弱从弱
+        # 日干中和，多财印需要官杀通关，多印食需要比劫通关，多官比需要印枭通关
+        # 日干中和且不需要通关，木火性燥取金水，金水性寒取木火
+
+        if self.pan['量化分析']['旺衰']['日干'] in ['弱', '偏弱']:
+            pass
+        elif self.pan['量化分析']['旺衰']['日干'] in ['强', '偏强']:
+            pass
+        elif self.pan['量化分析']['旺衰']['日干'] in ['极弱', '极强']:
+            if self.pan['量化分析']['旺衰']['日干'] == '极弱':
+                pass
+            elif self.pan['量化分析']['旺衰']['日干'] == '极强':
+                pass
+        elif self.pan['量化分析']['旺衰']['日干'] == '中':
+            pass
 
     def qushu(self):
         pass
@@ -157,19 +210,26 @@ class Lianghuafenxi(Chuantongfenxi):
         for i in self.pan['量化分析']['五行']:
             map_str += str(self.pan['量化分析']['五行'][i]['六亲'])
             map_str += str(i)
-            map_str += str(self.pan['量化分析']['五行'][i]['归一'])+'%'
+            map_str += str(round(self.pan['量化分析']['五行'][i]['归一'],2))+'%'
             map_str += ';'
         map_str += '\n'
         map_str += '十神力量：'
         for i in self.pan['量化分析']['天干']:
             map_str += str(self.pan['量化分析']['天干'][i]['十神'])
             map_str += str(i)
-            map_str += str(self.pan['量化分析']['天干'][i]['归一'])+'%'
+            map_str += str(round(self.pan['量化分析']['天干'][i]['归一'],2))+'%'
             map_str += ';'
         map_str += '\n'
-        map_str += '日主强弱：'
+        map_str += '命主强弱：'
+        map_str += '己生助'+str(round(self.pan['量化分析']['旺衰']['己生助'],2))+'%;'
+        map_str += '克泄耗'+str(round(self.pan['量化分析']['旺衰']['克泄耗'],2))+'%;'
+        map_str += '阴气'+str(round(self.pan['量化分析']['旺衰']['阴气'],2))+'%;'
+        map_str += '阳气'+str(round(self.pan['量化分析']['旺衰']['阳气'],2))+'%;'
+        map_str += '命主'+str(self.pan['量化分析']['旺衰']['日干'])+';'
         map_str += '\n'
         map_str += '八字格局：'
+        map_str += str(self.pan['量化分析']['格局'])+'格;'
+        map_str += str(self.pan['量化分析']['取用格局'])+'格;'
         map_str += '\n'
         map_str += '八字喜忌：'
         map_str += '\n'
@@ -179,8 +239,4 @@ class Lianghuafenxi(Chuantongfenxi):
         map_str += '\n'
         # 测试
         map_str += str(self.pan['量化分析'])
-        map_str += '\n'
-        for i in self.pan['量化分析']['天干']:
-            map_str += str(i)
-            map_str += str(self.pan['量化分析']['天干'][i]['权重'])
         return map_str

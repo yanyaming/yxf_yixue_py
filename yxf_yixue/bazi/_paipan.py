@@ -52,140 +52,6 @@ class Paipan:
         self.dayun(datetime_obj, solarTermJie, xingbie)
         return {'干支':self.ganzhi,'五行':self.Wuxing, '天干':self.Tiangan, '地支':self.Dizhi, '八字全局':self.Baziquanju, '八字四柱':self.Bazisizhu, '八字单字':self.Bazibazi, '干支关系':self.GZguanxi, '大运':self.Dayun}
 
-    def output(self):
-        map_str = ''
-        if self.xingbie == '男':
-            map_str += '乾造：'
-        else:
-            map_str += '坤造：'
-        map_str += self.ganzhi.split('：')[1]
-        map_str += '\n'
-        # 时间
-        map_str += str(self.solar[1])
-        map_str += '\n'
-        map_str += str(self.lunar[1])
-        map_str += '\n'
-        # 节气
-        map_str += '节气：'
-        map_str += str(self.solarTermJie[0][0])
-        map_str += '第'
-        map_str += str(self.solarTermJie[0][2])
-        map_str += '日\n\n'
-        # 纳音
-        map_str += self.Bazisizhu['年柱']['纳音五行']
-        map_str += '\t\t'
-        map_str += self.Bazisizhu['月柱']['纳音五行']
-        map_str += '\t\t'
-        map_str += self.Bazisizhu['日柱']['纳音五行']
-        map_str += '\t\t'
-        map_str += self.Bazisizhu['时柱']['纳音五行']
-        map_str += '\n'
-        # 天干十神
-        map_str += self.Tiangan[self.Bazibazi['年干']['宫主']]['十神']
-        map_str += '\t\t'
-        map_str += self.Tiangan[self.Bazibazi['月干']['宫主']]['十神']
-        map_str += '\t\t'
-        map_str += '日干'
-        map_str += '\t\t'
-        map_str += self.Tiangan[self.Bazibazi['时干']['宫主']]['十神']
-        map_str += '\t\t'
-        map_str += '\n'
-        # 天干
-        map_str += self.Bazibazi['年干']['宫主']
-        map_str += '\t\t'
-        map_str += self.Bazibazi['月干']['宫主']
-        map_str += '\t\t'
-        map_str += self.Bazibazi['日干']['宫主']
-        map_str += '\t\t'
-        map_str += self.Bazibazi['时干']['宫主']
-        map_str += '\n'
-        # 地支
-        map_str += self.Bazibazi['年支']['宫主']
-        map_str += '\t\t'
-        map_str += self.Bazibazi['月支']['宫主']
-        map_str += '\t\t'
-        map_str += self.Bazibazi['日支']['宫主']
-        map_str += '\t\t'
-        map_str += self.Bazibazi['时支']['宫主']
-        map_str += '\n'
-        # 地支藏干
-        for i in range(1, 4):
-            if self.Bazibazi['年支']['藏干']['藏干'+str(i)] != '无':
-                map_str += self.Bazibazi['年支']['藏干']['藏干'+str(i)]
-                map_str += self.Tiangan[self.Bazibazi['年支']['藏干']['藏干'+str(i)]]['十神']
-            else:
-                map_str += '      '
-            map_str += '\t\t'
-            if self.Bazibazi['月支']['藏干']['藏干'+str(i)] != '无':
-                map_str += self.Bazibazi['月支']['藏干']['藏干'+str(i)]
-                map_str += self.Tiangan[self.Bazibazi['月支']['藏干']['藏干'+str(i)]]['十神']
-            else:
-                map_str += '      '
-            map_str += '\t\t'
-            if self.Bazibazi['日支']['藏干']['藏干'+str(i)] != '无':
-                map_str += self.Bazibazi['日支']['藏干']['藏干'+str(i)]
-                map_str += self.Tiangan[self.Bazibazi['日支']['藏干']['藏干'+str(i)]]['十神']
-            else:
-                map_str += '      '
-            map_str += '\t\t'
-            if self.Bazibazi['时支']['藏干']['藏干'+str(i)] != '无':
-                map_str += self.Bazibazi['时支']['藏干']['藏干'+str(i)]
-                map_str += self.Tiangan[self.Bazibazi['时支']['藏干']['藏干'+str(i)]]['十神']
-            else:
-                map_str += '      '
-            map_str += '\n'
-        # 十二长生运
-        shierzhangsheng = self.Bazibazi['日干']['十二长生'].copy()  # 改造变长字符串方便显示
-        for item in shierzhangsheng.keys():
-            if len(shierzhangsheng[item]) == 1:
-                shierzhangsheng[item] += '  '
-        map_str += shierzhangsheng[self.Bazibazi['年支']['宫主']]
-        map_str += '\t\t'
-        map_str += shierzhangsheng[self.Bazibazi['月支']['宫主']]
-        map_str += '\t\t'
-        map_str += shierzhangsheng[self.Bazibazi['日支']['宫主']]
-        map_str += '\t\t'
-        map_str += shierzhangsheng[self.Bazibazi['时支']['宫主']]
-        map_str += '\n\n'
-        # 干支关系
-        for gx in self.GZguanxi.keys():
-            map_str += gx
-            map_str += '：'
-            if self.GZguanxi[gx].keys():
-                for k in self.GZguanxi[gx].keys():
-                    map_str += k
-            map_str += '\n'
-        map_str += '\n'
-        # 大运
-        map_str += '大运：'
-        map_str += '\n'
-        for dayun in self.Dayun.keys():
-            map_str += str(self.Dayun[dayun]['年份'])
-            map_str += '\t\t'
-        map_str += '\n'
-        for dayun in self.Dayun.keys():
-            map_str += str(self.Dayun[dayun]['虚岁'])
-            map_str += '\t\t'
-        map_str += '\n'
-        for dayun in self.Dayun.keys():
-            map_str += dayun
-            map_str += '\t\t'
-        map_str += '\n'
-        for dayun in self.Dayun.keys():
-            map_str += self.Dayun[dayun]['十神']
-            map_str += '\t\t'
-        map_str += '\n'
-        for dayun in self.Dayun.keys():
-            map_str += self.Dayun[dayun]['纳音五行']
-            map_str += '\t\t'
-        map_str += '\n'
-        for dayun in self.Dayun.keys():
-            if len(self.Dayun[dayun]['十二长生']) == 1:
-                self.Dayun[dayun]['十二长生'] += '  '
-            map_str += self.Dayun[dayun]['十二长生']
-            map_str += '\t\t'
-        return map_str
-
     def bazi(self):
         # 胎元：天干为月干+1，地支为月支+3
         taiyuan_tianganidx = self.tianganName.index(self.Bazibazi['月干']['宫主']) + 1
@@ -196,13 +62,11 @@ class Paipan:
             taiyuan_dizhiidx -= 12
         self.Baziquanju['胎元'] = self.tianganName[taiyuan_tianganidx] + self.dizhiName[taiyuan_dizhiidx]
         # 命宫：地支子上起寅月逆数至生月，再起生时顺数至卯；若命宫地支在生月前则天干起甲逆数到命宫地支，否则顺数到命宫地支
-        self.Baziquanju['命宫'] = None
+        self.Baziquanju['命宫'] = ''
         # 身宫：
-        self.Baziquanju['身宫'] = None
+        self.Baziquanju['身宫'] = ''
         # 命卦：以出生时间起六爻卦，只取卦名
-        self.Baziquanju['命卦'] = None
-        # 生肖：
-        # 星座：
+        self.Baziquanju['命卦'] = ''
 
     def sizhu(self):
         for zhu in self.Bazisizhu.keys():
@@ -224,33 +88,48 @@ class Paipan:
         self.Wuxing[yinxiao]['六亲'] = '印枭'
         self.Wuxing[bijie]['六亲'] = '比劫'
         self.Wuxing[shishang]['六亲'] = '食伤'
+        self.Wuxing[caixing]['六亲缩写'] = '财'
+        self.Wuxing[guansha]['六亲缩写'] = '官'
+        self.Wuxing[yinxiao]['六亲缩写'] = '印'
+        self.Wuxing[bijie]['六亲缩写'] = '比'
+        self.Wuxing[shishang]['六亲缩写'] = '食'
         # 天干十神
         for i in self.Tiangan.keys():
             if self.Tiangan[i]['五行'] == caixing:
                 if self.Tiangan[i]['阴阳'] == riganyinyang:
                     self.Tiangan[i]['十神'] = '偏财'
+                    self.Tiangan[i]['十神缩写'] = '才'
                 else:
                     self.Tiangan[i]['十神'] = '正财'
+                    self.Tiangan[i]['十神缩写'] = '财'
             if self.Tiangan[i]['五行'] == guansha:
                 if self.Tiangan[i]['阴阳'] == riganyinyang:
                     self.Tiangan[i]['十神'] = '七杀'
+                    self.Tiangan[i]['十神缩写'] = '杀'
                 else:
                     self.Tiangan[i]['十神'] = '正官'
+                    self.Tiangan[i]['十神缩写'] = '官'
             if self.Tiangan[i]['五行'] == yinxiao:
                 if self.Tiangan[i]['阴阳'] == riganyinyang:
                     self.Tiangan[i]['十神'] = '偏印'
+                    self.Tiangan[i]['十神缩写'] = '枭'
                 else:
                     self.Tiangan[i]['十神'] = '正印'
+                    self.Tiangan[i]['十神缩写'] = '印'
             if self.Tiangan[i]['五行'] == bijie:
                 if self.Tiangan[i]['阴阳'] == riganyinyang:
                     self.Tiangan[i]['十神'] = '比肩'
+                    self.Tiangan[i]['十神缩写'] = '比'
                 else:
                     self.Tiangan[i]['十神'] = '劫财'
+                    self.Tiangan[i]['十神缩写'] = '劫'
             if self.Tiangan[i]['五行'] == shishang:
                 if self.Tiangan[i]['阴阳'] == riganyinyang:
                     self.Tiangan[i]['十神'] = '食神'
+                    self.Tiangan[i]['十神缩写'] = '食'
                 else:
                     self.Tiangan[i]['十神'] = '伤官'
+                    self.Tiangan[i]['十神缩写'] = '伤'
         # 地支十神
         for i in self.Dizhi.keys():
             if self.Dizhi[i]['五行'] == caixing:
@@ -315,21 +194,33 @@ class Paipan:
         self.Bazibazi['日干']['空亡'] = kongwang_str
 
     def ganzhi_guanxi(self):
-        # 天干合化：日干不参与合化，天干最多只能出现1次五合（3干参与）。
-        table_hehua = self.db.get_tabledict_dict('[关联表-天干五合]')
-        self.GZguanxi['天干五合'] = {}
-        for i in table_hehua.values():
-            if i['天干1'] in [self.Bazibazi['年干']['宫主'], self.Bazibazi['月干']['宫主'], self.Bazibazi['时干']['宫主']] and i['天干2'] in [self.Bazibazi['年干']['宫主'], self.Bazibazi['月干']['宫主'], self.Bazibazi['时干']['宫主']]:
-                self.GZguanxi['天干五合'][i['天干1'] + i['天干2']] = {}
-                self.GZguanxi['天干五合'][i['天干1'] + i['天干2']]['化'] = i['合化天干']
-                self.GZguanxi['天干五合'][i['天干1'] + i['天干2']]['化系数'] = '1.0'
-        # 地支关系优先级：
-        # 地支关系中，同类关系可能存在多个。
+        # 天干数据整理
+        tiangan_count = {}
+        for i in self.Tiangan.keys():
+            tiangan_count[i] = {'次数':0}
+        for i in tiangan_count:
+            for j in [self.Bazibazi['年干']['宫主'],self.Bazibazi['月干']['宫主'],self.Bazibazi['日干']['宫主'],self.Bazibazi['时干']['宫主']]:
+                if j == i:
+                    tiangan_count[i]['次数'] += 1
+        # 地支数据整理
+        dizhi_count = {}
+        for i in self.Dizhi.keys():
+            dizhi_count[i] = {'次数': 0}
+        for i in dizhi_count:
+            for j in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']]:
+                if j == i:
+                    dizhi_count[i]['次数'] += 1
+        # 天干五合：
+        self.GZguanxi['天干五合'] = self.db2cdata.get_ganzhiguanxi(input=tiangan_count,type='天干五合')
         # 地支六冲：有冲得与冲去之分，反映在系数里，系数为负即为冲去。
+        dizhi_count = {}
+        for i in self.Dizhi.keys():
+            dizhi_count[i] = {'次数': 0}
         table_liuchong = self.db.get_tabledict_dict('[关联表-地支六冲]')
         self.GZguanxi['地支六冲'] = {}
         for i in table_liuchong.values():
-            if i['地支1'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']] and i['地支2'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']]:
+            if i['地支1'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']] \
+                    and i['地支2'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']]:
                 self.GZguanxi['地支六冲'][i['地支1'] + i['地支2']] = {}
                 self.GZguanxi['地支六冲'][i['地支1'] + i['地支2']]['化'] = i['冲化天干']
                 self.GZguanxi['地支六冲'][i['地支1'] + i['地支2']]['化系数'] = i['系数']
@@ -337,7 +228,8 @@ class Paipan:
         table_liuhe = self.db.get_tabledict_dict('[关联表-地支六合]')
         self.GZguanxi['地支六合'] = {}
         for i in table_liuhe.values():
-            if i['地支1'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']] and i['地支2'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']]:
+            if i['地支1'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']] \
+                    and i['地支2'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']]:
                 self.GZguanxi['地支六合'][i['地支1'] + i['地支2']] = {}
                 self.GZguanxi['地支六合'][i['地支1'] + i['地支2']]['化'] = i['合化天干']
                 self.GZguanxi['地支六合'][i['地支1'] + i['地支2']]['化系数'] = '1.0'
@@ -379,9 +271,30 @@ class Paipan:
                     self.GZguanxi['地支墓半合'][i['地支2'] + i['地支3']]['化'] = i['合化天干']
                     self.GZguanxi['地支墓半合'][i['地支2'] + i['地支3']]['化系数'] = '0.5'
         # 刑破害为定性分析，暂时不需要定量。
-        # 三刑
-        # 六破
-        # 六害
+        # 地支三刑：
+        self.GZguanxi['地支三刑'] = {}  # 三刑
+        table_sanxing = self.db.get_tabledict_dict('[关联表-地支三刑]')
+        for i in table_sanxing.values():
+            if i['地支1'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']] \
+                    and i['地支2'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']]:
+                if i['地支1'] != i['地支2']:
+                    self.GZguanxi['地支三刑'][i['地支1'] + i['地支2']] = {}
+                elif dizhi_count[i['地支1']]['次数'] in [2, 4]:
+                    self.GZguanxi['地支三刑'][i['地支1'] + i['地支2']] = {}
+        # 地支六破：
+        self.GZguanxi['地支六破'] = {}
+        table_liupo = self.db.get_tabledict_dict('[关联表-地支六破]')
+        for i in table_liupo.values():
+            if i['地支1'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']] \
+                    and i['地支2'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']]:
+                self.GZguanxi['地支六破'][i['地支1'] + i['地支2']] = {}
+        # 地支六害：
+        self.GZguanxi['地支六害'] = {}
+        table_liuhai = self.db.get_tabledict_dict('[关联表-地支六害]')
+        for i in table_liuhai.values():
+            if i['地支1'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']] \
+                    and i['地支2'] in [self.Bazibazi['年支']['宫主'], self.Bazibazi['月支']['宫主'], self.Bazibazi['日支']['宫主'], self.Bazibazi['时支']['宫主']]:
+                self.GZguanxi['地支六害'][i['地支1'] + i['地支2']] = {}
 
     def dayun(self, dt, solarTermJie, xingbie):
         # 确定大运。从所生之月建依次按顺逆序得出。男年干阳、女年干阴顺行；男年干阴、女年干阳逆行。
@@ -423,3 +336,102 @@ class Paipan:
             self.Dayun[item]['纳音五行'] = self.Liushijiazi[item]['纳音五行']
             self.Dayun[item]['虚岁'] = qiyunzhousui + i*10 + 1  # 虚岁
             self.Dayun[item]['年份'] = dt.year + qiyunzhousui + i*10
+
+    def output(self):
+        map_str = ''
+        if self.xingbie == '男':
+            map_str += '乾造：'
+        else:
+            map_str += '坤造：'
+        map_str += self.ganzhi.split('：')[1]+'\n'
+        # 时间
+        map_str += str(self.solar[1])+'\n'
+        map_str += str(self.lunar[1])+'\n'
+        # 节气
+        map_str += str(self.solarTerm[1])+'\n\n'
+        # 纳音
+        map_str += str(self.Bazisizhu['年柱']['纳音五行'])+'\t\t'
+        map_str += str(self.Bazisizhu['月柱']['纳音五行'])+'\t\t'
+        map_str += str(self.Bazisizhu['日柱']['纳音五行'])+'\t\t'
+        map_str += str(self.Bazisizhu['时柱']['纳音五行'])+'\n'
+        # 天干十神
+        map_str += str(self.Tiangan[self.Bazibazi['年干']['宫主']]['十神'])+'\t\t'
+        map_str += str(self.Tiangan[self.Bazibazi['月干']['宫主']]['十神'])+'\t\t'
+        map_str += '日干'+'\t\t'
+        map_str += str(self.Tiangan[self.Bazibazi['时干']['宫主']]['十神'])+'\t\t\n'
+        # 天干
+        map_str += str(self.Bazibazi['年干']['宫主'])+'\t\t'
+        map_str += str(self.Bazibazi['月干']['宫主'])+'\t\t'
+        map_str += str(self.Bazibazi['日干']['宫主'])+'\t\t'
+        map_str += str(self.Bazibazi['时干']['宫主'])+'\n'
+        # 地支
+        map_str += str(self.Bazibazi['年支']['宫主'])+'\t\t'
+        map_str += str(self.Bazibazi['月支']['宫主'])+'\t\t'
+        map_str += str(self.Bazibazi['日支']['宫主'])+'\t\t'
+        map_str += str(self.Bazibazi['时支']['宫主'])+'\n'
+        # 地支藏干
+        for i in range(1, 4):
+            if self.Bazibazi['年支']['藏干']['藏干'+str(i)] != '无':
+                map_str += self.Bazibazi['年支']['藏干']['藏干'+str(i)]
+                map_str += self.Tiangan[self.Bazibazi['年支']['藏干']['藏干'+str(i)]]['十神']
+            else:
+                map_str += '      '
+            map_str += '\t\t'
+            if self.Bazibazi['月支']['藏干']['藏干'+str(i)] != '无':
+                map_str += self.Bazibazi['月支']['藏干']['藏干'+str(i)]
+                map_str += self.Tiangan[self.Bazibazi['月支']['藏干']['藏干'+str(i)]]['十神']
+            else:
+                map_str += '      '
+            map_str += '\t\t'
+            if self.Bazibazi['日支']['藏干']['藏干'+str(i)] != '无':
+                map_str += self.Bazibazi['日支']['藏干']['藏干'+str(i)]
+                map_str += self.Tiangan[self.Bazibazi['日支']['藏干']['藏干'+str(i)]]['十神']
+            else:
+                map_str += '      '
+            map_str += '\t\t'
+            if self.Bazibazi['时支']['藏干']['藏干'+str(i)] != '无':
+                map_str += self.Bazibazi['时支']['藏干']['藏干'+str(i)]
+                map_str += self.Tiangan[self.Bazibazi['时支']['藏干']['藏干'+str(i)]]['十神']
+            else:
+                map_str += '      '
+            map_str += '\n'
+        # 十二长生运
+        shierzhangsheng = self.Bazibazi['日干']['十二长生'].copy()  # 改造变长字符串方便显示
+        for item in shierzhangsheng.keys():
+            if len(shierzhangsheng[item]) == 1:
+                shierzhangsheng[item] += '  '
+        map_str += str(shierzhangsheng[self.Bazibazi['年支']['宫主']])+'\t\t'
+        map_str += str(shierzhangsheng[self.Bazibazi['月支']['宫主']])+'\t\t'
+        map_str += str(shierzhangsheng[self.Bazibazi['日支']['宫主']])+'\t\t'
+        map_str += str(shierzhangsheng[self.Bazibazi['时支']['宫主']])+'\n\n'
+        # 干支关系
+        for gx in self.GZguanxi.keys():
+            map_str += gx
+            map_str += '：'
+            if self.GZguanxi[gx].keys():
+                for k in self.GZguanxi[gx].keys():
+                    map_str += k+';'
+            map_str += '\n'
+        map_str += '\n'
+        # 大运
+        map_str += '大运：'+'\n'
+        for dayun in self.Dayun.keys():
+            map_str += str(self.Dayun[dayun]['年份'])+'\t\t'
+        map_str += '\n'
+        for dayun in self.Dayun.keys():
+            map_str += str(self.Dayun[dayun]['虚岁'])+'\t\t'
+        map_str += '\n'
+        for dayun in self.Dayun.keys():
+            map_str += str(dayun)+'\t\t'
+        map_str += '\n'
+        for dayun in self.Dayun.keys():
+            map_str += str(self.Dayun[dayun]['十神'])+'\t\t'
+        map_str += '\n'
+        for dayun in self.Dayun.keys():
+            map_str += str(self.Dayun[dayun]['纳音五行'])+'\t\t'
+        map_str += '\n'
+        for dayun in self.Dayun.keys():
+            if len(self.Dayun[dayun]['十二长生']) == 1:
+                self.Dayun[dayun]['十二长生'] += '  '
+            map_str += str(self.Dayun[dayun]['十二长生'])+'\t\t'
+        return map_str

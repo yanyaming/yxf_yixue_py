@@ -167,8 +167,18 @@ class jinkoujue(object):
         c = JinkoujueApi()
         res = None
         try:
-            if subop is None or subop == 'paipan':
+            if subop is None or subop == '排盘':
                 res = c.paipan(dt_obj,difen=difen,yuejiang=yuejiang,zhanshi=zhanshi)
+                if op == 'str':
+                    res = c.print_pan()
+            elif subop == '传统分析':
+                c.paipan(dt_obj)
+                res = c.get_chuantongfenxi()
+                if op == 'str':
+                    res = c.print_pan()
+            elif subop == '量化分析':
+                c.paipan(dt_obj)
+                res = c.get_lianghuafenxi()
                 if op == 'str':
                     res = c.print_pan()
         except Exception as e:

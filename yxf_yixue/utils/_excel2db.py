@@ -6,44 +6,44 @@ import openpyxl.utils
 from ._db import Db
 
 """
-    openpyxl说明：
+openpyxl说明：
 
-        表格操作：
-        wb = Workbook()
-            ——在内存中建立表格对象
-        ws = wb.active
-            ——获取当前活跃的sheet，默认为第一个
-        sheets = wb.get_sheet_names()
-        ws = wb.get_sheet_by_name(sheets[0])
-            ——获取所有sheet，然后选择特定的sheet
-        wb.save("path")
-            ——保存文件
-        wb = load_workbook("path")
-            ——读取已存在表格文件
+    表格操作：
+    wb = Workbook()
+        ——在内存中建立表格对象
+    ws = wb.active
+        ——获取当前活跃的sheet，默认为第一个
+    sheets = wb.get_sheet_names()
+    ws = wb.get_sheet_by_name(sheets[0])
+        ——获取所有sheet，然后选择特定的sheet
+    wb.save("path")
+        ——保存文件
+    wb = load_workbook("path")
+        ——读取已存在表格文件
 
-        多条数据操作：
-        rows = ws.rows
-        columns = ws.columns
-            ——获取表格所有行、列，均可迭代
-        cell_range = ws['A1':'C2']
-        colC = ws['C']
-        col_range = ws['C:D']
-        row10 = ws[10]
-        row_range = ws[5:10]
-            ——获取一部分内容
+    多条数据操作：
+    rows = ws.rows
+    columns = ws.columns
+        ——获取表格所有行、列，均可迭代
+    cell_range = ws['A1':'C2']
+    colC = ws['C']
+    col_range = ws['C:D']
+    row10 = ws[10]
+    row_range = ws[5:10]
+        ——获取一部分内容
 
-        单条数据操作：
-        ws.cell(row=1, column=1).value = 6
-            ——单元格数字寻址，赋值，起始于1
-        ws.cell("B1").value = 7
-            ——单元格字母寻址，赋值，起始于1
-        get_column_letter(col)
-            ——获取单元格字母地址
-        ws.append(["我","你","她"])
-            ——在末尾插入行
-        ws['A1'].value
-        ws['A1] = 4
-            ——单元格寻址，赋值
+    单条数据操作：
+    ws.cell(row=1, column=1).value = 6
+        ——单元格数字寻址，赋值，起始于1
+    ws.cell("B1").value = 7
+        ——单元格字母寻址，赋值，起始于1
+    get_column_letter(col)
+        ——获取单元格字母地址
+    ws.append(["我","你","她"])
+        ——在末尾插入行
+    ws['A1'].value
+    ws['A1] = 4
+        ——单元格寻址，赋值
 """
 
 
@@ -84,11 +84,13 @@ class Excel2Db:
                     sqlstr_create += "[{0}] text primary key not null,".format(col)
                 else:
                     sqlstr_create += "[{0}] text not null,".format(col)
-            # 删除旧表，创建新表
-            print("drop table if exists [{0}];".format(tablename))
+            # 直接笨办法：删除旧表，创建新表
             self.db.execute("drop table if exists [{0}];".format(tablename))
-            print(sqlstr_create[:-1] + ");")
+            self.db.commit()
+            print("drop table if exists [{0}];".format(tablename))
             self.db.execute(sqlstr_create[:-1]+");")
+            self.db.commit()
+            print(sqlstr_create[:-1] + ");")
             # 存入数据
             table_colnamestr = ""
             for i in table_colname:
@@ -97,3 +99,4 @@ class Excel2Db:
                 sqlstr_insert = "insert into [{0}]({1})values({2});".format(tablename,table_colnamestr[:-1],str(row).lstrip('[').rstrip(']'))
                 print(sqlstr_insert)
                 self.db.execute(sqlstr_insert)
+            self.db.commit()
