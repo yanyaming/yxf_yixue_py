@@ -5,7 +5,7 @@ import sys
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # 基地址是本项目根目录
 sys.path.append(BASE_DIR)
 import datetime
-from yxf_yixue import Code2Excel, Excel2Db, Db, Db2Cdata
+from yxf_yixue import Excel2Db, Db, Db2Cdata
 
 if __name__ == '__main__':
     # c = Db2Cdata()
