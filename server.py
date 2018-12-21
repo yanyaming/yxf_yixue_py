@@ -6,6 +6,7 @@ import json
 import os
 import re
 import datetime
+import logging
 WEB_ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(WEB_ROOT)
 from yxf_yixue import WannianliApi,BaziApi,JinkoujueApi,XiaochengtuApi,LiuyaoApi
