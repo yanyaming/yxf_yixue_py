@@ -43,21 +43,21 @@ class Paipan:
                    '贵神': {'用神': '  '},
                    '将神': {'用神': '  '},
                    '地分': {'用神': '  '}}
-        # 如果没有输入月将，则使用干支
+        # 如果没有输入月将，则使用干支的月支
         if yuejiang is None:
-            yuejian = ganzhi.split('：')[1].split(' ')[1][1:2]
+            yuejian = ganzhi['月柱'][1:2]
             yuejianIdx = self.dizhiName.index(yuejian)
             if 13 - yuejianIdx >= 12:
                 yuejianIdx += 12
             yuejiang = self.dizhiName[13 - yuejianIdx]
-        # 如果没有输入占时，则使用干支
+        # 如果没有输入占时，则使用干支的时支
         if zhanshi is None:
-            zhanshi = ganzhi.split('：')[1].split(' ')[3][1:2]
+            zhanshi = ganzhi['时柱'][1:2]
         # 起课
         Difen, Jiangshen, JiangshenName = self.qike_jiangshen(yuejiang, zhanshi, difen)
         Guishen, GuishenName = self.qike_guishen(ganzhi, zhanshi, Difen)
         Renyuan, Jianggan, Shengan = self.qike_renyuandungan(ganzhi, Difen, Jiangshen, Guishen)
-        self.Zhanshi['占时']['干支'] = ganzhi
+        self.Zhanshi['占时']['干支'] = ganzhi['文本']
         self.Zhanshi['月将']['干支'] = yuejiang
         self.Ke['人元']['干支'] = Renyuan
         self.Ke['贵神']['干支'] = Shengan + Guishen + '（' + GuishenName + '）'
@@ -90,7 +90,7 @@ class Paipan:
 
     def qike_guishen(self, ganzhi, zhanshi, Difen):
         # 依照贵人歌诀取天盘贵人，即首位
-        rigan = ganzhi.split('：')[1].split(' ')[2][0:1]
+        rigan = ganzhi['日柱'][0:1]
         guiren = None
         if rigan in ['甲', '戊', '庚']:
             if zhanshi in ['卯', '辰', '巳', '午', '未', '申']:  # 昼贵
@@ -138,7 +138,7 @@ class Paipan:
         return Guishen, GuishenName
 
     def qike_renyuandungan(self, ganzhi, Difen, Jiangshen, Guishen):
-        rigan = ganzhi.split('：')[1].split(' ')[2][0:1]
+        rigan = ganzhi['日柱'][0:1]
         # 五子元遁
         if rigan in ['甲', '己']:
             shigan_index = 1  # 甲子

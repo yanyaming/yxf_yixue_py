@@ -12,9 +12,8 @@ class LiuyaoApi:
     def paipan(self, datetime_obj, qiguafangfa='标准时间起卦', qiguashuru=None, naganzhifangfa='传统京氏'):
         a = WannianliApi()
         self.p = Paipan()
-        return_list = a.get_Calendar(datetime_obj)
-        res = self.p.paipan(return_list[1][0], return_list[3], qiguafangfa=qiguafangfa, qiguashuru=qiguashuru, naganzhifangfa=naganzhifangfa)
-        # print(res)
+        calendar = a.get_Calendar(datetime_obj)
+        res = self.p.paipan(calendar[1], calendar[3], qiguafangfa=qiguafangfa, qiguashuru=qiguashuru, naganzhifangfa=naganzhifangfa)
         return res
 
     def print_pan(self):

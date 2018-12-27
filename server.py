@@ -55,7 +55,7 @@ def middleware_before_return(res=None,op='json',message='错误的请求'):
     return json_result
 
 
-# 视图
+# 视图：万年历
 class wannianli(object):
     def GET(self):
         inputs = web.input()
@@ -88,27 +88,33 @@ class wannianli(object):
         start_year = inputs.get('start_year', False)  # 万年历需要。数字大于等于1900
         end_year = inputs.get('end_year', False)  # 万年历需要。数字小于等于2100
         year = inputs.get('year',None)  # 万年历需要。数字1900-2100
+        month = inputs.get('month',None)  # 万年历需要。数字1-12
         # 执行数术程序
         c = WannianliApi()
         dt_obj_c = dt_obj
         res = None
         try:
             if jingdu:
-                dt_obj_c = c.get_Realsolar(dt_obj, int(jingdu))
+                dt_obj_c = c.get_Realsolar(zhidingshijian=dt_obj,jingdu=int(jingdu))['时间']
             if subop is None or subop == 'get_Calendar':
-                res = c.get_Calendar(dt_obj_c,return_fengshui=return_fengshui,return_zhongyi=return_zhongyi,return_huangji=return_huangji)
+                if op == 'str':
+                    res = c.get_Calendar(dt_obj_c, return_fengshui=return_fengshui, return_zhongyi=return_zhongyi,return_huangji=return_huangji,return_str=True)
+                else:
+                    res = c.get_Calendar(dt_obj_c,return_fengshui=return_fengshui,return_zhongyi=return_zhongyi,return_huangji=return_huangji)
             elif subop == 'get_GanzhiYears':
                 res = c.get_GanzhiYears(start_year=int(start_year),end_year=int(end_year))
             elif subop == 'get_GanzhiOneYear':
-                res = c.get_GanzhiOneYear(int(year))
-            elif subop == 'get_Realsolar':
-                res = c.get_Realsolar(int(jingdu))
+                res = c.get_GanzhiOneYear(year=int(year))
+            elif subop == 'get_GanzhiOneMonth':
+                res = c.get_GanzhiOneMonth(year=int(year),month=int(month))
+            elif subop == 'get_GanzhiOneDay':
+                res = c.get_GanzhiOneDay(dt_obj_c)
         except Exception as e:
-            pass
+            print(e)
         return middleware_before_return(res,op)
 
 
-# 视图
+# 视图：八字
 class bazi(object):
     def GET(self):
         inputs = web.input()
@@ -122,7 +128,7 @@ class bazi(object):
             return dt_obj
         # 可选参数
         subop = inputs.get('subop', None)  # 子操作。所有类别都需要，不写返回默认值
-        xingbie = inputs.get('xingbie', None)  # 八字需要。汉字：男/女
+        xingbie = inputs.get('xingbie', '男')  # 八字需要。汉字：男/女
         # 执行数术程序
         c = BaziApi()
         res = None
@@ -143,11 +149,10 @@ class bazi(object):
                     res = c.print_pan()
         except Exception as e:
             print(e)
-            raise e
         return middleware_before_return(res, op)
 
 
-# 视图
+# 视图：金口诀
 class jinkoujue(object):
     def GET(self):
         inputs = web.input()
@@ -173,21 +178,21 @@ class jinkoujue(object):
                 if op == 'str':
                     res = c.print_pan()
             elif subop == '传统分析':
-                c.paipan(dt_obj)
+                c.paipan(dt_obj,difen=difen,yuejiang=yuejiang,zhanshi=zhanshi)
                 res = c.get_chuantongfenxi()
                 if op == 'str':
                     res = c.print_pan()
             elif subop == '量化分析':
-                c.paipan(dt_obj)
+                c.paipan(dt_obj,difen=difen,yuejiang=yuejiang,zhanshi=zhanshi)
                 res = c.get_lianghuafenxi()
                 if op == 'str':
                     res = c.print_pan()
         except Exception as e:
-            pass
+            print(e)
         return middleware_before_return(res, op)
 
 
-# 视图
+# 视图：六爻
 class liuyao(object):
     def GET(self):
         inputs = web.input()
@@ -208,16 +213,16 @@ class liuyao(object):
         c = LiuyaoApi()
         res = None
         try:
-            if subop is None or subop == 'paipan':
+            if subop is None or subop == '排盘':
                 res = c.paipan(dt_obj, qiguafangfa=qiguafangfa, qiguashuru=qiguashuru,naganzhifangfa=naganzhifangfa)
                 if op == 'str':
                     res = c.print_pan()
         except Exception as e:
-            pass
+            print(e)
         return middleware_before_return(res, op)
 
 
-# 视图
+# 视图：小成图
 class xiaochengtu(object):
     def GET(self):
         inputs = web.input()
@@ -238,12 +243,12 @@ class xiaochengtu(object):
         c = XiaochengtuApi()
         res = None
         try:
-            if subop is None or subop == 'paipan':
+            if subop is None or subop == '排盘':
                 res = c.paipan(dt_obj, lingdongshu=lingdongshu, shuziqigua=shuziqigua,guizangfangfa=guizangfangfa)
                 if op == 'str':
                     res = c.print_pan()
         except Exception as e:
-            pass
+            print(e)
         return middleware_before_return(res, op)
 
 

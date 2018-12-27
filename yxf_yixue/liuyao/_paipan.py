@@ -73,7 +73,7 @@ class Paipan:
         self.Pan['20']['六十四卦'] = gua[5]
         self.Pan['10']['卦宫'] = self.Liushisigua[gua[4]]['卦宫']
         self.Pan['20']['卦宫'] = self.Liushisigua[gua[5]]['卦宫']
-        self.Pan['20']['补充'] += ganzhi.split('（')[1].split(' ')[2]
+        self.Pan['20']['补充'] += ganzhi['四柱空亡'][2]
         # 装天干、地支（五行）、世应、六亲、六神
         self.zhuanggua_dizhiwuxing(naganzhifangfa)
         self.zhuanggua_tiangan(ganzhi, naganzhifangfa)
@@ -81,39 +81,6 @@ class Paipan:
         self.zhuanggua_liuqin()
         self.zhuanggua_liushen(ganzhi)
         return {'农历': lunar, '干支': ganzhi, '八卦': self.Bagua, '动爻': self.dongyao, '盘': self.Pan}
-
-    def output(self):
-        map_str = ''
-        for i in self.Pan.keys():
-            if i == '10' or i == '20':
-                map_str += '上'
-                map_str += self.Pan[i]['上卦']
-                map_str += '下'
-                map_str += self.Pan[i]['下卦']
-                map_str += ' '
-                map_str += self.Pan[i]['六十四卦']
-                map_str += '('
-                map_str += self.Pan[i]['卦宫']
-                map_str += '宫)'
-                map_str += self.Pan[i]['补充']
-                if i[0:1] == '2':
-                    map_str += '\n'
-            else:
-                if i[0:1] == '1':
-                    map_str += self.Pan[i]['六神']
-                map_str += self.Pan[i]['卦爻']
-                if i[0:1] == '1':
-                    map_str += self.Pan[i]['动爻']
-                map_str += self.Pan[i]['六亲']
-                map_str += self.Pan[i]['纳干']
-                map_str += self.Pan[i]['纳支']
-                map_str += self.Pan[i]['五行']
-                map_str += self.Pan[i]['世应']
-                if i[0:1] == '1':
-                    map_str += '\t'
-                if i[0:1] == '2':
-                    map_str += '\n'
-        return map_str
 
     def qigua_shijianqigua(self, lunar, ganzhi, qiguashuru, qiguafangfa):
         # 时间起卦法
@@ -124,10 +91,10 @@ class Paipan:
             # 此时的起卦输入作为灵动数，灵动数加入到本卦下卦数，影响本卦下卦
             # 纳甲筮法时间取数法（本卦：（年+月+日）%8，（年+月+日+时）%8，动爻：（年+月+日+时）%6，取先天八卦数）。余0取坤
             # 求年月日时数
-            nianshu = self.dizhiName.index(ganzhi.split('：')[1].split(' ')[0][1:2]) + 1
-            yueshu = lunar[2]
-            rishu = lunar[3]
-            shishu = lunar[4]
+            nianshu = self.dizhiName.index(ganzhi['年柱'][1:2]) + 1
+            yueshu = lunar['月']
+            rishu = lunar['日']
+            shishu = lunar['时']
             # 根据时间计算取卦数
             bengua_shang_num = (nianshu + yueshu + rishu) % 8
             if bengua_shang_num == 0:
@@ -146,10 +113,10 @@ class Paipan:
         # 此时的起卦输入作为动爻(1-6)，可多动，影响变卦
         elif qiguafangfa == '输入动爻时间起卦':
             # 求年月日时数
-            nianshu = self.dizhiName.index(ganzhi.split('：')[1].split(' ')[0][1:2]) + 1
-            yueshu = lunar[2]
-            rishu = lunar[3]
-            shishu = lunar[4]
+            nianshu = self.dizhiName.index(ganzhi['年柱'][1:2]) + 1
+            yueshu = lunar['月']
+            rishu = lunar['日']
+            shishu = lunar['时']
             # 根据时间计算取卦数
             bengua_shang_num = (nianshu + yueshu + rishu) % 8
             if bengua_shang_num == 0:
@@ -368,7 +335,7 @@ class Paipan:
                 if i[1:2] in ['4', '5', '6']:  # 上卦
                     self.Pan[i]['纳干'] = nagan[self.Pan[i[0:1] + '0']['上卦']][1]
         elif naganzhifangfa == '先天甲子易':
-            rigan = ganzhi.split('：')[1].split(' ')[2][0:1]
+            rigan = ganzhi['日柱'][0:1]
             # 五子元遁
             if rigan in ['甲', '己']:
                 gan_index = 1  # 甲子
@@ -479,7 +446,7 @@ class Paipan:
     def zhuanggua_liushen(self, ganzhi):
         # 根据日干：甲乙起青龙，丙丁起朱雀，戊日起勾陈，己日起腾蛇，庚辛起白虎，壬癸起玄武（正好是对应的五行）
         # 按照青龙、朱雀、勾陈、腾蛇、白虎、玄武的顺序，由初爻装至六爻
-        rigan = ganzhi.split('：')[1].split(' ')[2][0:1]
+        rigan = ganzhi['日柱'][0:1]
         liushen = ['青龙', '朱雀', '勾陈', '腾蛇', '白虎', '玄武']
         idx = 0
         if rigan in ['甲', '乙']:
@@ -499,3 +466,36 @@ class Paipan:
                 idx -= 6
             self.Pan['1' + str(i + 1)]['六神'] = liushen[i + idx]
             self.Pan['2' + str(i + 1)]['六神'] = liushen[i + idx]
+
+    def output(self):
+        map_str = ''
+        for i in self.Pan.keys():
+            if i == '10' or i == '20':
+                map_str += '上'
+                map_str += self.Pan[i]['上卦']
+                map_str += '下'
+                map_str += self.Pan[i]['下卦']
+                map_str += ' '
+                map_str += self.Pan[i]['六十四卦']
+                map_str += '('
+                map_str += self.Pan[i]['卦宫']
+                map_str += '宫)'
+                map_str += self.Pan[i]['补充']
+                if i[0:1] == '2':
+                    map_str += '\n'
+            else:
+                if i[0:1] == '1':
+                    map_str += self.Pan[i]['六神']
+                map_str += self.Pan[i]['卦爻']
+                if i[0:1] == '1':
+                    map_str += self.Pan[i]['动爻']
+                map_str += self.Pan[i]['六亲']
+                map_str += self.Pan[i]['纳干']
+                map_str += self.Pan[i]['纳支']
+                map_str += self.Pan[i]['五行']
+                map_str += self.Pan[i]['世应']
+                if i[0:1] == '1':
+                    map_str += '\t'
+                if i[0:1] == '2':
+                    map_str += '\n'
+        return map_str

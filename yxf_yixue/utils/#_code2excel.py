@@ -92,19 +92,19 @@ class Code2Excel:
         lunar_year_days = 0
         # 正常月总天数
         while (i <= lunar_month) and (mask > 0x8):
-            lunar_year_days += self.__getLunarMonthDay(lunar_year, mask)
+            lunar_year_days += self._getLunarMonthDay(lunar_year, mask)
             mask //= 2
             i += 1
         # 闰月及其天数
-        leapMonth = self.__getLeapMonth(lunar_year)
+        leapMonth = self._getLeapMonth(lunar_year)
         if 0 < leapMonth <= lunar_month:
-            leapMonthDays = self.__getLeapMonthDay(lunar_year)
+            leapMonthDays = self._getLeapMonthDay(lunar_year)
             lunar_year_days += leapMonthDays
         else:
             pass
         return lunar_year_days
 
-    def __getLeapMonth(self, lunar_year):
+    def _getLeapMonth(self, lunar_year):
         # 输入：年数
         # 输出：此年的阴历闰月数
         leapMonth = (self.lunarYearCode[lunar_year - self.YEAR_START] & 0XF)
@@ -113,7 +113,7 @@ class Code2Excel:
         else:
             return leapMonth  # 其他编码返回闰月数
 
-    def __getLunarMonthDay(self, lunar_year, mask):
+    def _getLunarMonthDay(self, lunar_year, mask):
         # 输入：年数，阴历各年编码表的月解析码
         # 输出：月解析码对应的月份天数
         if (self.lunarYearCode[lunar_year - self.YEAR_START] & mask) == mask:  # 匹配对应位
@@ -121,7 +121,7 @@ class Code2Excel:
         else:
             return 29
 
-    def __getLeapMonthDay(self, lunar_year):
+    def _getLeapMonthDay(self, lunar_year):
         # 输入：年数
         # 输出：此年的阴历闰月天数
         if (self.lunarYearCode[lunar_year - self.YEAR_START + 1] & 0XF) == 0XF:  # 大月编码值

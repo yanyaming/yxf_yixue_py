@@ -27,18 +27,18 @@ class Paipan:
         self.ganzhi = calendar[3]
         self.GZguanxi = {}
         self.Baziquanju = {}
-        self.Bazisizhu = {'年柱': {'宫主': self.ganzhi.split('：')[1].split(' ')[0]},
-                          '月柱': {'宫主': self.ganzhi.split('：')[1].split(' ')[1]},
-                          '日柱': {'宫主': self.ganzhi.split('：')[1].split(' ')[2]},
-                          '时柱': {'宫主': self.ganzhi.split('：')[1].split(' ')[3]}}
-        self.Bazibazi = {'年干': {'宫主': self.ganzhi.split('：')[1].split(' ')[0][0:1]},
-                         '年支': {'宫主': self.ganzhi.split('：')[1].split(' ')[0][1:2]},
-                         '月干': {'宫主': self.ganzhi.split('：')[1].split(' ')[1][0:1]},
-                         '月支': {'宫主': self.ganzhi.split('：')[1].split(' ')[1][1:2]},
-                         '日干': {'宫主': self.ganzhi.split('：')[1].split(' ')[2][0:1]},
-                         '日支': {'宫主': self.ganzhi.split('：')[1].split(' ')[2][1:2]},
-                         '时干': {'宫主': self.ganzhi.split('：')[1].split(' ')[3][0:1]},
-                         '时支': {'宫主': self.ganzhi.split('：')[1].split(' ')[3][1:2]}}
+        self.Bazisizhu = {'年柱': {'宫主': self.ganzhi['年柱']},
+                          '月柱': {'宫主': self.ganzhi['月柱']},
+                          '日柱': {'宫主': self.ganzhi['日柱']},
+                          '时柱': {'宫主': self.ganzhi['时柱']}}
+        self.Bazibazi = {'年干': {'宫主': self.ganzhi['年柱'][0:1]},
+                         '年支': {'宫主': self.ganzhi['年柱'][1:2]},
+                         '月干': {'宫主': self.ganzhi['月柱'][0:1]},
+                         '月支': {'宫主': self.ganzhi['月柱'][1:2]},
+                         '日干': {'宫主': self.ganzhi['日柱'][0:1]},
+                         '日支': {'宫主': self.ganzhi['日柱'][1:2]},
+                         '时干': {'宫主': self.ganzhi['时柱'][0:1]},
+                         '时支': {'宫主': self.ganzhi['时柱'][1:2]}}
         self.Dayun = {}
         self.bazi()
         self.sizhu()
@@ -190,8 +190,8 @@ class Paipan:
         self.Bazibazi['日干']['十二长生'].pop('阴阳')
 
     def ganzhi_kongwang(self, ganzhi):
-        kongwang_str = ganzhi.split('：')[1].split('（')[1].split(' ')[2]
-        self.Bazibazi['日干']['空亡'] = kongwang_str
+        kongwang = ganzhi['四柱空亡']
+        self.Bazibazi['日干']['空亡'] = kongwang
 
     def ganzhi_guanxi(self):
         # 天干数据整理
@@ -230,6 +230,7 @@ class Paipan:
 
     def dayun(self, dt, solarTermJie, xingbie):
         # 确定大运。从所生之月建依次按顺逆序得出。男年干阳、女年干阴顺行；男年干阴、女年干阳逆行。
+        # 大运的年限已经超出了万年历的范围，不能通过万年历查询，需要自己实现推算年干支
         yuejian = self.Bazisizhu['月柱']['宫主']
         yuejianIdx = int(self.Liushijiazi[yuejian]['序号'])
         niangan = self.Bazibazi['年干']['宫主']
@@ -254,8 +255,8 @@ class Paipan:
                     if int(self.Liushijiazi[i]['序号']) == idx:
                         self.Dayun[i] = {}
         # 上一个节与下一个节的日期
-        jiedate1 = solarTermJie[0][1]
-        jiedate2 = solarTermJie[1][1]
+        jiedate1 = solarTermJie['当前节交节日']
+        jiedate2 = solarTermJie['下一节交节日']
         # 起运年数。大运顺行则由生日生时顺数到下一节，大运逆行则由生日生时逆数到上一节。每隔三日一岁，每隔一日120天，因节气没有精确到时辰，所以交运只精确到一年。
         if shunni == '顺':
             dayIdx = (jiedate2 - dt).days
@@ -275,12 +276,12 @@ class Paipan:
             map_str += '乾造：'
         else:
             map_str += '坤造：'
-        map_str += self.ganzhi.split('：')[1]+'\n'
+        map_str += self.ganzhi['文本']+'\n'
         # 时间
-        map_str += str(self.solar[1])+'\n'
-        map_str += str(self.lunar[1])+'\n'
+        map_str += str(self.solar['文本'])+'\n'
+        map_str += str(self.lunar['文本'])+'\n'
         # 节气
-        map_str += str(self.solarTerm[1])+'\n\n'
+        map_str += str(self.solarTerm['文本'])+'\n\n'
         # 纳音
         map_str += str(self.Bazisizhu['年柱']['纳音五行'])+'\t\t'
         map_str += str(self.Bazisizhu['月柱']['纳音五行'])+'\t\t'

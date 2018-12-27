@@ -17,9 +17,9 @@ class JinkoujueApi:
     def paipan(self, datetime_obj, difen='子', yuejiang=None, zhanshi=None):
         a = WannianliApi()
         self.p = Paipan()
-        return_list = a.get_Calendar(datetime_obj)
-        self.zhanshi, self.pan, self.ke = self.p.paipan(return_list[3], difen=difen, yuejiang=yuejiang, zhanshi=zhanshi)
-        return [self.zhanshi, self.pan, self.ke]
+        calendar = a.get_Calendar(datetime_obj)
+        self.pan = self.p.paipan(calendar[3], difen=difen, yuejiang=yuejiang, zhanshi=zhanshi)
+        return self.pan
 
     def print_pan(self):
         if self.p is None:

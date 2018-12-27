@@ -53,30 +53,27 @@ import datetime
 """
 
 
-# 返回2元素列表
 class RealSolar:
     # 输入：日期时间（北京时间），经度
     # 输出：1.当前北京时间、当前河洛时间；2.输入时间对应的河洛时间、输入时间输入经度对应的真太阳时
     def __init__(self):
         self.now_obj = datetime.datetime.today()
 
-    def beijingshijian_now(self, zhidinggeshi=None):
+    def beijingshijian_now(self, zhidinggeshi):
         # 当前北京时间。东经120度
-        jingdu_str = '经度：120'
         if zhidinggeshi is None:
-            return self.now_obj, jingdu_str
+            return self.now_obj
         else:
-            return [self.now_obj.strftime(zhidinggeshi), jingdu_str]
+            return self.now_obj.strftime(zhidinggeshi)
 
-    def heluoshijian(self, zhidingshijian=None, zhidinggeshi=None):
+    def heluoshijian(self, zhidingshijian, zhidinggeshi):
         # 河洛时间。东经110度，比北京时间晚40分钟
         return self.zhentaiyangshi(zhidingshijian=zhidingshijian, jingdu=110, zhidinggeshi=zhidinggeshi)
 
-    def zhentaiyangshi(self, zhidingshijian=None, jingdu=120, zhidinggeshi=None):
+    def zhentaiyangshi(self, zhidingshijian, jingdu, zhidinggeshi):
         # 返回各经度对应输入时间的真太阳时
         # 对精度要求不高，纬度暂时不用，经度每15度相差1个小时即60分钟，每1度相差4分钟（取整数度），交日柱暂时按照时辰算
         # 如果没有输入时间则按当前北京时间，否则按输入时间，自动判断输入格式
-        jingdu_str = '经度：'+str(jingdu)
         # 若没有指定时间则使用当前时间对象
         if zhidingshijian is None:
             datetime_obj = self.now_obj
@@ -84,7 +81,7 @@ class RealSolar:
             # 若指定的时间是字符串参数，则要转化为datetime对象
             if type(zhidingshijian) is str:
                 #datetime_obj = datetime.datetime.strptime(dt, '%Y/%m/%d %H:%M')  # 此句strptime()函数出现BUG，暂时无法解决
-                datetime_obj = self.__datetimeStr2Obj(zhidingshijian)  # 用自己写的解析函数替代
+                datetime_obj = self._datetimeStr2Obj(zhidingshijian)  # 用自己写的解析函数替代
             # 若指定的时间是datetime对象，则直接使用
             else:
                 datetime_obj = zhidingshijian
@@ -93,21 +90,21 @@ class RealSolar:
         time_delta = datetime.timedelta(minutes=minute_delta)
         # 判断输入日期时间是否正确
         if 0 <= datetime_obj.year <= 9999 and 1 <= datetime_obj.month <= 12 \
-            and 1 <= datetime_obj.day <= self.__solarMonthDayMax(datetime_obj.year, datetime_obj.month) \
+            and 1 <= datetime_obj.day <= self._solarMonthDayMax(datetime_obj.year, datetime_obj.month) \
             and 0 <= datetime_obj.hour <= 23 and 0 <= datetime_obj.minute <= 59:
             datetime_obj += time_delta
         else:
             print('输入的日期时间有错误！')
             raise IOError
-        # 返回。根据输入确定输出，若给定格式化字符串，则返回字符串，否则默认返回日期对象。例：zhidinggeshi='%Y/%m/%d %H:%M'
+        # 返回。根据输入确定输出，若给定格式化字符串，则返回字符串，否则默认返回日期时间对象。例：zhidinggeshi='%Y/%m/%d %H:%M'
         if zhidinggeshi is None:
-            return [datetime_obj, jingdu_str]
+            return {'时间': datetime_obj, '经度': jingdu}
         else:
-            datetime_str = datetime_obj.strftime(zhidinggeshi)
-            return [datetime_str, jingdu_str]
+            return {'时间': datetime_obj.strftime(zhidinggeshi), '经度': jingdu}
 
     @staticmethod
-    def __solarYearDayMax(solar_year):
+    def _solarYearDayMax(solar_year):
+        # 判断阳历年的最大天数
         if ((solar_year % 4 == 0) and (solar_year % 100 != 0)) or (solar_year % 400 == 0):
             solar_year_day_max = 366
         else:
@@ -115,7 +112,8 @@ class RealSolar:
         return solar_year_day_max
 
     @staticmethod
-    def __solarMonthDayMax(solar_year, solar_month):
+    def _solarMonthDayMax(solar_year, solar_month):
+        # 判断阳历月的最大天数
         if solar_month in [1, 3, 5, 7, 8, 10, 12]:
             solar_month_day_max = 31
         elif solar_month in [4, 6, 9, 11]:
@@ -130,8 +128,9 @@ class RealSolar:
         return solar_month_day_max
 
     @staticmethod
-    def __datetimeStr2Obj(datetime_str):
+    def _datetimeStr2Obj(datetime_str):
         datetime_obj = datetime.datetime(
+            # 此处能够转换的日期时间必须足位（不够位数的必须补0）
             # 编程语言问题：字符串切片截取——从0开始，从左界开始，顺数几个就截取几位
             # 例：2017-08-09 15:30
             int(datetime_str[0:4]),   # year=2017
@@ -143,7 +142,7 @@ class RealSolar:
         return datetime_obj
 
     @staticmethod
-    def __datetimeObj2Str(datetime_obj):
+    def _datetimeObj2Str(datetime_obj):
         # 转化为字符串形式：YYYY-mm-dd HH:MM
         datetime_str = str(datetime_obj.year).zfill(4) + '-' + \
                        str(datetime_obj.month).zfill(2) + '-' + \

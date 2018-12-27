@@ -6,8 +6,6 @@ import datetime
 from ..utils._db import Db
 
 """
-编程用到的技巧：内部类（对外隐藏）；类继承；构造函数重载；类变量
-
 万年历特点：
 1.起始于1900.1.31（1.31是阴历春节），阴历以春节（正月初一）为两年之交，不同于四柱
 2.阳历和二十四节气是重要索引，四柱以立春为两年之交，是重点
@@ -21,15 +19,15 @@ from ..utils._db import Db
 # 所有历法均返回2元素列表，1是对象（若无则置空），2是字符串
 class Calendar:
     def __init__(self):
-        self.YEAR_START = 1900
-        self.MONTH_START = 1
-        self.DAY_START = 31
-        self.YEAR_END = 2100
+        self.START_YEAR = 1900
+        self.START_MONTH = 1
+        self.START_DAY = 31
+        self.END_YEAR = 2100
         self.db = Db()
 
     class Solar:
         # 太阳历，公历，公元纪年，例：公元 2012/12/21 19:00 星期一
-        def __init__(self, datetime_str=None, return_list=True):
+        def __init__(self):
             self.out = Calendar()
 
         def solar(self, datetime_obj, jiyuan='公元'):
@@ -38,17 +36,28 @@ class Calendar:
             # 佛祖纪元，佛历，公元+543
             solar_month = datetime_obj.month
             solar_day = datetime_obj.day
-            solar_weekday_num, solar_weekday_name = self.__getWeekday(datetime_obj)
+            solar_weekday_num, solar_weekday_name = self._getWeekday(datetime_obj)
             solar_hour = datetime_obj.hour
             solar_minute = datetime_obj.minute
-            if jiyuan == '公元':
-                solar_year = datetime_obj.year
-                return ['公元', solar_year, solar_month, solar_day, solar_hour, solar_minute, solar_weekday_num], '公元：' + str(solar_year) + '/' + str(solar_month) + '/' + str(solar_day) + ' ' + str(solar_hour) + ':' + str(solar_minute) + ' ' + str(solar_weekday_name)
-            elif jiyuan == '开元':
+            if jiyuan == '开元':
                 solar_year = datetime_obj.year + 2698
-                return ['开元', solar_year, solar_month, solar_day, solar_hour, solar_minute, solar_weekday_num], '开元：' + str(solar_year) + '/' + str(solar_month) + '/' + str(solar_day) + ' ' + str(solar_hour) + ':' + str(solar_minute) + ' ' + str(solar_weekday_name)
+            elif jiyuan == '佛历':
+                solar_year = datetime_obj.year + 543
+            else:
+                solar_year = datetime_obj.year
+            return {
+                '类别': '阳历',
+                '纪元': jiyuan,
+                '年': solar_year,
+                '月': solar_month,
+                '日': solar_day,
+                '时': solar_hour,
+                '分': solar_minute,
+                '星期': solar_weekday_num,
+                '文本': str(jiyuan) + '：' + str(solar_year) + '/' + str(solar_month) + '/' + str(solar_day) + ' ' + str(solar_hour) + ':' + str(solar_minute) + ' ' + str(solar_weekday_name)
+            }
 
-        def __getWeekday(self, datetime_obj):
+        def _getWeekday(self, datetime_obj):
             solar_weekday_idx = datetime_obj.weekday()# weekday()的返回值从0-6依次为星期一到星期日
             querystr = self.out.db.select(tablename="[基础表-七曜]", column="[星期]",condition="where [程序编码序号]='{0}'".format(solar_weekday_idx))
             solar_weekday_name = str(querystr).strip('[]').strip('()').rstrip(',').strip('\'')
@@ -72,23 +81,21 @@ class Calendar:
 
         def lunar(self, datetime_obj):
             # 确定日期所在阳历年的阴历新年
-            lunarYear_firstDay_str = self.lunarYearInfo[datetime_obj.year - self.out.YEAR_START]['阴历年起始阳历日'].lstrip('0d')
-            lunarYear_firstDay = self.__datetimeStr2Obj(lunarYear_firstDay_str)
-
+            lunarYear_firstDay_str = self.lunarYearInfo[datetime_obj.year - self.out.START_YEAR]['阴历年起始阳历日'].lstrip('0d')
+            lunarYear_firstDay = self._datetimeStr2Obj(lunarYear_firstDay_str)
             # 年
             if datetime_obj < lunarYear_firstDay:  # 如果日期在新年之前，则找上一年
                 lunar_year = datetime_obj.year - 1
-                lunarYear_firstDay1_str = self.lunarYearInfo[datetime_obj.year - 1 - self.out.YEAR_START]['阴历年起始阳历日'].lstrip('0d')
-                lunarYear_firstDay1 = self.__datetimeStr2Obj(lunarYear_firstDay1_str)
+                lunarYear_firstDay1_str = self.lunarYearInfo[datetime_obj.year - 1 - self.out.START_YEAR]['阴历年起始阳历日'].lstrip('0d')
+                lunarYear_firstDay1 = self._datetimeStr2Obj(lunarYear_firstDay1_str)
                 lunar_day = (datetime_obj - lunarYear_firstDay1).days + 1
             else:
                 lunar_year = datetime_obj.year
                 lunar_day = (datetime_obj - lunarYear_firstDay).days + 1
             return_year = str(lunar_year) + '年'
-
             # 月，日，是否闰月
-            lunar_month, lunar_monthday, isLeap = self.__getLunarMonth(lunar_year, lunar_day)
-            lunar_leapMonth = int(self.lunarYearInfo[datetime_obj.year - self.out.YEAR_START]['闰月序号'])
+            lunar_month, lunar_monthday, isLeap = self._getLunarMonth(lunar_year, lunar_day)
+            lunar_leapMonth = int(self.lunarYearInfo[datetime_obj.year - self.out.START_YEAR]['闰月序号'])
             return_month = self.lunarMonth[lunar_month - 1]['汉字']
             if isLeap is True:
                 return_month = '闰' + return_month
@@ -102,7 +109,6 @@ class Calendar:
                     pass
                 else:
                     lunar_month += 1
-
             # 时，刻
             lunar_hour = (datetime_obj.hour + 3) // 2
             if lunar_hour > 12:
@@ -113,18 +119,26 @@ class Calendar:
                 lunar_ke = (datetime_obj.minute // 15) + 1  # 1-8
             return_hour = self.dizhi[lunar_hour - 1]['地支'] + '时'
             return_ke = self.lunarKe[lunar_ke - 1]['汉字']
+            return {
+                '类别': '农历',
+                '年': lunar_year,
+                '月': lunar_month,
+                '日': lunar_monthday,
+                '时': lunar_hour,
+                '刻': lunar_ke,
+                '闰': lunar_leapMonth,
+                '文本': '农历：' + return_year + ' ' + return_month + ' ' + return_monthday + ' ' + return_hour + ' ' + return_ke
+            }
 
-            return ['农历', lunar_year, lunar_month, lunar_monthday, lunar_hour, lunar_ke, '闰' + str(lunar_leapMonth)],'农历：' + return_year + ' ' + return_month + ' ' + return_monthday + ' ' + return_hour + ' ' + return_ke
-
-        def __getLunarMonth(self, lunar_year, lunar_day):
+        def _getLunarMonth(self, lunar_year, lunar_day):
             # 输入：年，累计天数
             # 输出：最终落入的月，最终落入的月的天数，是否为闰月
-            leapMonth = int(self.lunarYearInfo[lunar_year - self.out.YEAR_START]['闰月序号'])
+            leapMonth = int(self.lunarYearInfo[lunar_year - self.out.START_YEAR]['闰月序号'])
             isLeap = False
             lunar_month = 0
             for m in range(1, 13):
                 # 正常月份
-                daysOfMonth = int(self.lunarYearInfo[lunar_year - self.out.YEAR_START][self.lunarMonth[m-1]['汉字']+'天数'])
+                daysOfMonth = int(self.lunarYearInfo[lunar_year - self.out.START_YEAR][self.lunarMonth[m-1]['汉字']+'天数'])
                 if lunar_day > daysOfMonth:
                     lunar_day -= daysOfMonth
                 else:
@@ -132,7 +146,7 @@ class Calendar:
                     break
                 # 闰月
                 if leapMonth == m:
-                    daysOfMonth = int(self.lunarYearInfo[lunar_year - self.out.YEAR_START]['闰月天数'])
+                    daysOfMonth = int(self.lunarYearInfo[lunar_year - self.out.START_YEAR]['闰月天数'])
                     if lunar_day > daysOfMonth:
                         lunar_day -= daysOfMonth
                     else:
@@ -142,7 +156,7 @@ class Calendar:
             return lunar_month, lunar_day, isLeap
 
         @staticmethod
-        def __datetimeStr2Obj(datetime_str):
+        def _datetimeStr2Obj(datetime_str):
             datetime_obj = datetime.datetime(
                 # 编程语言问题：字符串切片截取——从0开始，从左界开始，顺数几个就截取几位
                 # 例：2017-08-09
@@ -161,8 +175,8 @@ class Calendar:
 
         def solarTerm(self, datetime_obj):
             # 解析数据，获取对应此阳历年、上一阳历年的节气日期列表
-            solarTermDays = self.solarTermInfo[datetime_obj.year - self.out.YEAR_START]
-            solarTermDays_lastyear = self.solarTermInfo[datetime_obj.year - 1 - self.out.YEAR_START]
+            solarTermDays = self.solarTermInfo[datetime_obj.year - self.out.START_YEAR]
+            solarTermDays_lastyear = self.solarTermInfo[datetime_obj.year - 1 - self.out.START_YEAR]
             # 给此阳历年、上一阳历年各节气建立日期时间对象
             solarTermDays_dt = []
             for i in range(0, 24):
@@ -171,31 +185,42 @@ class Calendar:
             for i in range(0, 24):
                 solarTermDays_lastyear_dt.append(datetime.datetime(datetime_obj.year - 1, (i + 2) // 2, int(solarTermDays_lastyear[i+2])))
             # 判断输入日期的节气。得到：节气序号及名称，当前节气过了几日
-            jieqiIdx = 0
-            dayIdx = 0
+            jieqiIdx = 0  # 节气序号
+            dayIdx = 0  # 本节气已过的天数，当日算1天
+            jieqiBegin = None  # 本节气在此之前的交节气日
             if datetime_obj < solarTermDays_dt[0]:  # 如果输入时间小于第一个节气，则节气为前一年冬至，需重新查询前一年的节气列表
                 jieqiIdx = 23
+                jieqiBegin = solarTermDays_lastyear_dt[jieqiIdx]
                 dayIdx = (datetime_obj - solarTermDays_lastyear_dt[jieqiIdx]).days + 1
             elif datetime_obj >= solarTermDays_dt[23]:  # 如果输入时间大于等于最后一个节气，则节气为当年冬至
                 jieqiIdx = 23
+                jieqiBegin = solarTermDays_dt[jieqiIdx]
                 dayIdx = (datetime_obj - solarTermDays_dt[jieqiIdx]).days + 1
             else:  # 如果输入时间大于等于第一个节气且小于最后一个节气，先以第一个节气和第二个节气计算，如果输入时间介于两者之间则确认，否则继续判断
                 for i in range(0, 23):
                     if solarTermDays_dt[i] <= datetime_obj < solarTermDays_dt[i + 1]:
                         jieqiIdx = i
+                        jieqiBegin = solarTermDays_dt[jieqiIdx]
                         dayIdx = (datetime_obj - solarTermDays_dt[jieqiIdx]).days + 1
             jieqi = self.solarTermBase[jieqiIdx]['节气名']
             # 求出月将和星座
             yuejiang = self.solarTermBase[jieqiIdx]['月将名称']+self.solarTermBase[jieqiIdx]['月将地支']
             xingzuo = self.solarTermBase[jieqiIdx]['西洋星座']
-            return ['节气', jieqiIdx + 1, dayIdx], '节气：' + jieqi + ' 第' + str(dayIdx) + '天 ' + yuejiang + ' ' + xingzuo
+            return {
+                '类别': '节气',
+                '节气名称': jieqi,
+                '节气序号': jieqiIdx+1,
+                '交节气日': jieqiBegin,
+                '已过': dayIdx,
+                '文本': '节气：' + jieqi + ' 第' + str(dayIdx) + '天 ' + yuejiang + ' ' + xingzuo
+            }
 
         def solarTermJie(self, datetime_obj):
-            # 求最近已往的节、交节后几天、下一节
+            # 求最近已往的节、交节后几天、下一节。专为八字写的函数
             # 获取对应此年、上一年、下一年的节气日期列表
-            solarTermDays = self.solarTermInfo[datetime_obj.year - self.out.YEAR_START]
-            solarTermDays_f = self.solarTermInfo[datetime_obj.year - 1 - self.out.YEAR_START]
-            solarTermDays_r = self.solarTermInfo[datetime_obj.year + 1 - self.out.YEAR_START]
+            solarTermDays = self.solarTermInfo[datetime_obj.year - self.out.START_YEAR]
+            solarTermDays_f = self.solarTermInfo[datetime_obj.year - 1 - self.out.START_YEAR]
+            solarTermDays_r = self.solarTermInfo[datetime_obj.year + 1 - self.out.START_YEAR]
             # 给此阳历年、上一年、下一年各节气建立日期时间对象
             dt_solarTerm = []
             for i in range(0, 24):
@@ -238,16 +263,26 @@ class Calendar:
                         dayIdx = (datetime_obj - dt_solarTerm[jieqiIdx]).days + 1
             jieqi = self.solarTermBase[jieqiIdx]['节气名']
             jieqi_r = self.solarTermBase[jieqiIdx_r]['节气名']
-            return [jieqi, jieqiDay, dayIdx], [jieqi_r, jieqiDay_r]
+            return {
+                '类别': '交节',
+                '当前节名称': jieqi,
+                '当前节交节日': jieqiDay,
+                '已过': dayIdx,
+                '下一节名称': jieqi_r,
+                '下一节交节日': jieqiDay_r
+            }
 
         def solarTermDays(self, datetime_obj):
-            solarTermDays = self.solarTermInfo[datetime_obj.year - self.out.YEAR_START]
-            return solarTermDays[2:]
+            solarTermDays = self.solarTermInfo[datetime_obj.year - self.out.START_YEAR]
+            return {
+                '类别': '交节气日',
+                '交节气日': list(solarTermDays[2:])
+            }
 
     class Ganzhilifa:
         def __init__(self):
-            # 本应该全部放到数据库里去查，但懒得改了
             self.out = Calendar()
+            # 本应该全部放到数据库里去查，但懒得改了
             # self.tiangan = self.out.db.get_tabledict("[基础表-十天干]")
             # self.dizhi = self.out.db.get_tabledict("[基础表-十二地支]")
             # self.bagua = self.out.db.get_tabledict("[基础表-八卦]")
@@ -288,27 +323,38 @@ class Calendar:
                                    '甲寅 乙卯 丙辰 丁巳 戊午 己未 庚申 辛酉 壬戌 癸亥'.split(' ')
 
         # 规范化四柱干支，例：甲戌 壬申 癸酉 戊午 空亡：午未 午未 戌亥 子丑
-        def ganzhi(self, datetime_obj, solarterm_str, wuzhu=False):
-            solarTerm = solarterm_str[1].split('：')[1].split(' ')[0]
-            nianzhu, nianzhu_kongwang = self.nianzhu(datetime_obj, solarTerm)
-            yuezhu, yuezhu_kongwang = self.yuezhu(datetime_obj, nianzhu, solarTerm)
+        def ganzhi(self, datetime_obj, solarTerm_obj, wuzhu):
+            solarTermName = solarTerm_obj['节气名称']
+            nianzhu, nianzhu_kongwang = self.nianzhu(datetime_obj, solarTermName)
+            yuezhu, yuezhu_kongwang = self.yuezhu(datetime_obj, nianzhu, solarTermName)
             rizhu, rizhu_kongwang = self.rizhu(datetime_obj)
             shizhu, shizhu_kongwang = self.shizhu(datetime_obj, rizhu)
             if wuzhu == '分柱':
-                fenzhu = self.fenzhu(datetime_obj)
-                return_str = '干支：' + nianzhu + ' ' + yuezhu + ' ' + rizhu + ' ' + shizhu + ' ' + fenzhu + '分柱'
+                wuzhu_neirong = self.fenzhu(datetime_obj)
+                wuzhu_wenben = ' ' + wuzhu + '：' + wuzhu_neirong
             elif wuzhu == '刻柱':
-                kezhu = self.kezhu(datetime_obj)
-                return_str = '干支：' + nianzhu + ' ' + yuezhu + ' ' + rizhu + ' ' + shizhu + ' ' + kezhu + '刻柱'
+                wuzhu_neirong = self.kezhu(datetime_obj)
+                wuzhu_wenben = ' ' + wuzhu + '：' + wuzhu_neirong
             elif wuzhu == '月卦柱':
-                yueguazhu = self.yueguazhu(datetime_obj)
-                return_str = '干支：' + nianzhu + ' ' + yuezhu + ' ' + rizhu + ' ' + shizhu + ' ' + yueguazhu + '月卦柱'
+                wuzhu_neirong = self.yueguazhu(datetime_obj)
+                wuzhu_wenben = ' ' + wuzhu + '：' + wuzhu_neirong
             else:
-                return_str = '干支：' + nianzhu + ' ' + yuezhu + ' ' + rizhu + ' ' + shizhu
-            return return_str + ' 空亡（' + nianzhu_kongwang + ' ' + yuezhu_kongwang + ' ' + rizhu_kongwang + ' ' + shizhu_kongwang + '）'
+                wuzhu_neirong = ''
+                wuzhu_wenben = ''
+            return {
+                '类别': '干支',
+                '年柱': nianzhu,
+                '月柱': yuezhu,
+                '日柱': rizhu,
+                '时柱': shizhu,
+                '五柱类型': wuzhu,
+                '五柱内容': wuzhu_neirong,
+                '四柱空亡': [nianzhu_kongwang, yuezhu_kongwang, rizhu_kongwang, shizhu_kongwang],
+                '文本': '干支：' + nianzhu + ' ' + yuezhu + ' ' + rizhu + ' ' + shizhu + wuzhu_wenben + ' 空亡：' + nianzhu_kongwang + ' ' + yuezhu_kongwang + ' ' + rizhu_kongwang + ' ' + shizhu_kongwang
+            }
 
-        def nianzhu(self, datetime_obj, solarTerm):
-            if (solarTerm in ['小寒', '大寒']) or (solarTerm == '冬至' and datetime_obj.month == 1):  # 阳历年首的两个半节气归为前一年
+        def nianzhu(self, datetime_obj, solarTermName):
+            if (solarTermName in ['小寒', '大寒']) or (solarTermName == '冬至' and datetime_obj.month == 1):  # 阳历年首的两个半节气归为前一年
                 ganzhi_year = datetime_obj.year - 1
             else:
                 ganzhi_year = datetime_obj.year
@@ -333,10 +379,10 @@ class Calendar:
             nianzhu_kongwang += self.dizhiName[nianzhi_num - 2]
             return niangan + nianzhi, nianzhu_kongwang
 
-        def yuezhu(self, datetime_obj, nianzhu, solarTerm):
+        def yuezhu(self, datetime_obj, nianzhu, solarTermName):
             # 月支固定，立春节交寅月
             # 1为寅月，2为卯月，，，11为子月，12为丑月
-            querystr = self.out.db.select(tablename="[基础表-二十四节气]",column="[月建序号]",condition="where [节气名]='{0}'".format(solarTerm))[0]
+            querystr = self.out.db.select(tablename="[基础表-二十四节气]",column="[月建序号]",condition="where [节气名]='{0}'".format(solarTermName))[0]
             ganzhiMonth_index = int(str(querystr).strip('[]').strip('()').rstrip(',').strip('\''))
             # 月干按照歌诀
             # （年上起月）五虎遁：
@@ -381,7 +427,7 @@ class Calendar:
         def rizhu(self, datetime_obj):
             # 距离初始甲子日的偏移总日数，能被60整除者为甲子，计算余数
             # 1900/2/20 甲子，距离1/31有20日
-            ganzhiDayIdx = (datetime_obj - datetime.datetime(Calendar().YEAR_START, Calendar().MONTH_START, Calendar().DAY_START)).days
+            ganzhiDayIdx = (datetime_obj - datetime.datetime(Calendar().START_YEAR, Calendar().START_MONTH, Calendar().START_DAY)).days
             idx = (ganzhiDayIdx - 20) % 60
             rigan = self.tianganName[idx % 10]
             rizhi = self.dizhiName[idx % 12]
@@ -466,29 +512,36 @@ class Calendar:
             self.jiuxingMName = '贪狼 巨门 禄存 文曲 廉贞 武曲 破军 左辅 右弼'.split(' ')
 
         # 三元九运，四柱飞星，例：下元艮运 年九紫右弼 月一白贪狼 日二黑巨门 时一白贪狼
-        def fengshui(self, datetime_obj, solarterm_str, ganzhi_str):
+        def fengshui(self, datetime_obj, lunar_obj, solarTerm_obj, ganzhi_obj):
             # 准备节气信息
-            solarTerm = solarterm_str[1].split('：')[1].split(' ')[0]
+            solarTermName = solarTerm_obj['节气名称']
             # 准备农历信息（原程序需判断此农历年是否有闰月，有闰月则自闰月开始序号加1，影响月飞星计算）
-            lunar_month_index = Calendar().Lunar().lunar(datetime_obj)[0][2] - 1
+            lunar_month_index = lunar_obj['月'] - 1
             # 准备干支四柱信息
-            sizhu = ganzhi_str.split('：')[1].split(' ')
-            nianzhu = sizhu[0]
-            yuezhu = sizhu[1]
-            rizhu = sizhu[2]
-            shizhu = sizhu[3]
+            nianzhu = ganzhi_obj['年柱']
+            yuezhu = ganzhi_obj['月柱']
+            rizhu = ganzhi_obj['日柱']
+            shizhu = ganzhi_obj['时柱']
             # 计算
-            yuanyun, ganzhi_year = self.yuanyun(datetime_obj, solarTerm)
+            yuanyun, ganzhi_year = self.yuanyun(datetime_obj, solarTermName)
             nianfeixing = self.nianfeixing(yuanyun, ganzhi_year)
             yuefeixing = self.yuefeixing(nianzhu, lunar_month_index)
             rifeixing, dt_solarTerm = self.rifeixing(datetime_obj)
             shifeixing = self.shifeixing(datetime_obj, rizhu, shizhu, dt_solarTerm)
-            return '风水：' + yuanyun + ' 年' + nianfeixing + ' 月' + yuefeixing + ' 日' + rifeixing + ' 时' + shifeixing
+            return {
+                '类别': '风水',
+                '元运': yuanyun,
+                '年飞星': nianfeixing,
+                '月飞星': yuefeixing,
+                '日飞星': rifeixing,
+                '时飞星': shifeixing,
+                '文本': '风水：' + yuanyun + ' 年' + nianfeixing + ' 月' + yuefeixing + ' 日' + rifeixing + ' 时' + shifeixing
+            }
 
-        def yuanyun(self, datetime_obj, solarTerm):
+        def yuanyun(self, datetime_obj, solarTermName):
             # 元运依干支年
             solar_month = datetime_obj.month
-            if (solarTerm in ['小寒', '大寒']) or (solarTerm == '冬至' and solar_month == 1):  # 阳历年首的两个半节气归为前一个干支年
+            if (solarTermName in ['小寒', '大寒']) or (solarTermName == '冬至' and solar_month == 1):  # 阳历年首的两个半节气归为前一个干支年
                 ganzhi_year = datetime_obj.year - 1
             else:
                 ganzhi_year = datetime_obj.year
@@ -570,11 +623,11 @@ class Calendar:
             # 夏至当日为九紫、第二日为八白，第三日为七赤，以此类推。
             # 处暑当日为三碧、第二日为二黑，第三日为一白，以此类推。
             # 霜降当日为六白、第二日为五黄，第三日为四绿，以此类推。
-            solarTermDays = self.solarTermInfo[datetime_obj.year - self.out.YEAR_START]
+            solarTermDays = self.solarTermInfo[datetime_obj.year - self.out.START_YEAR]
             dt_solarTerm = []
             for i in range(0, 24):
                 dt_solarTerm.append(datetime.datetime(datetime_obj.year, (i + 2) // 2, int(solarTermDays[i+2])))
-            solarTermDays1 = self.solarTermInfo[datetime_obj.year - 1 - self.out.YEAR_START]
+            solarTermDays1 = self.solarTermInfo[datetime_obj.year - 1 - self.out.START_YEAR]
             dt_solarTerm1 = datetime.datetime(datetime_obj.year - 1, 12, int(solarTermDays1[25]))
             if datetime_obj < dt_solarTerm[3]:  # 上一年冬至后
                 dayIdx = (datetime_obj - dt_solarTerm1).days
@@ -669,17 +722,24 @@ class Calendar:
                                     '手少阴心经 手太阳小肠经 足太阳膀胱经 足少阴肾经 手厥阴心包经 手少阳三焦经'.split(' ')
 
         # 五运六气，司天在泉，子午流注。例：阳火运 少阴君火司天 少阳相火在泉 厥阴风木 手太阴肺经
-        def zhongyi(self, solarterm_str, ganzhi_str):
-            solarTerm = solarterm_str[1].split('：')[1].split(' ')[0]
-            ganzhi = ganzhi_str.split('：')[1].split(' ')
-            niangan = ganzhi[0][0:1]
-            nianzhi = ganzhi[0][1:2]
-            shizhi = ganzhi[3][1:2]
+        def zhongyi(self, solarTerm_obj, ganzhi_obj):
+            solarTermName = solarTerm_obj['节气名称']
+            niangan = ganzhi_obj['年柱'][0:1]
+            nianzhi = ganzhi_obj['年柱'][1:2]
+            shizhi = ganzhi_obj['时柱'][1:2]
             wuyun = self.wuyun(niangan)
             sitian, zaiquan = self.sitianzaiquan(nianzhi)
-            liuqi = self.liuqi(solarTerm)
+            liuqi = self.liuqi(solarTermName)
             ziwuliuzhu = self.ziwuliuzhu(shizhi)
-            return '中医：' + wuyun + ' ' + sitian + ' ' + zaiquan + ' ' + liuqi + ' ' + ziwuliuzhu
+            return {
+                '类别': '中医',
+                '五运': wuyun,
+                '六气': sitian,
+                '司天': zaiquan,
+                '在泉': liuqi,
+                '子午流注': ziwuliuzhu,
+                '文本': '中医：' + wuyun + ' ' + sitian + ' ' + zaiquan + ' ' + liuqi + ' ' + ziwuliuzhu
+            }
 
         def wuyun(self, niangan):
             wuyun = ''
@@ -723,19 +783,19 @@ class Calendar:
                 zaiquan = '少阳相火在泉'
             return sitian, zaiquan
 
-        def liuqi(self, solarTerm):
+        def liuqi(self, solarTermName):
             liuqi = None
-            if solarTerm in ['大寒', '立春', '雨水', '惊蛰']:
+            if solarTermName in ['大寒', '立春', '雨水', '惊蛰']:
                 liuqi = '一阴厥阴风木'
-            if solarTerm in ['春分', '清明', '谷雨', '立夏']:
+            if solarTermName in ['春分', '清明', '谷雨', '立夏']:
                 liuqi = '二阴少阴君火'
-            if solarTerm in ['小满', '芒种', '夏至', '小暑']:
+            if solarTermName in ['小满', '芒种', '夏至', '小暑']:
                 liuqi = '一阳少阳相火'
-            if solarTerm in ['大暑', '立秋', '处暑', '白露']:
+            if solarTermName in ['大暑', '立秋', '处暑', '白露']:
                 liuqi = '三阴太阴湿土'
-            if solarTerm in ['秋分', '寒露', '霜降', '立冬']:
+            if solarTermName in ['秋分', '寒露', '霜降', '立冬']:
                 liuqi = '二阳阳明燥金'
-            if solarTerm in ['小雪', '大雪', '冬至', '小寒']:
+            if solarTermName in ['小雪', '大雪', '冬至', '小寒']:
                 liuqi = '三阳太阳寒水'
             return liuqi
 
@@ -749,34 +809,49 @@ class Calendar:
             pass
 
         # 元会运世
-        def huangjijingshi(self, datetime_obj, solarterm_str):
-            solarTerm = solarterm_str[1].split('：')[1].split(' ')[0]
-            if (solarTerm in ['小寒', '大寒']) or (solarTerm == '冬至' and datetime_obj.month == 1):  # 阳历年首的两个半节气归为前一年
+        def huangjijingshi(self, datetime_obj, solarTerm_obj):
+            solarTermName = solarTerm_obj['节气名称']
+            if (solarTermName in ['小寒', '大寒']) or (solarTermName == '冬至' and datetime_obj.month == 1):  # 阳历年首的两个半节气归为前一年
                 ganzhi_year = datetime_obj.year - 1
             else:
                 ganzhi_year = datetime_obj.year
-            yuan = self.yuan()
+            yuangua = self.yuangua()
             hui = self.hui()
+            huigua = self.huigua()
             yun = self.yun()
             shi = self.shi(ganzhi_year)
             xun = self.xun(ganzhi_year)
             nian = self.nian(ganzhi_year, shi)
-            return '皇极：' + yuan + ' ' + hui + ' ' + yun + ' ' + shi + ' ' + xun + ' ' + nian
+            return {
+                '类别': '皇极',
+                '元卦': yuangua,
+                '会': hui,
+                '会卦': huigua,
+                '运': yun,
+                '世': shi,
+                '旬': xun,
+                '年': nian,
+                '文本': '皇极：元卦' + yuangua + ' 会' + hui + ' 会卦' + huigua + ' 运卦' + yun + ' 世卦' + shi + ' 旬卦' + xun + ' 年卦' + nian
+            }
 
-        def yuan(self):
+        def yuangua(self):
             # 1元=12会=129600年
             # 1元4卦（离、乾、坎、坤），每卦统摄3会
             # 跨度太大，只要知道当前是坎卦午会
-            yuan = '元（坎卦午会）'
-            return yuan
+            yuangua = '坎'
+            return yuangua
 
         def hui(self):
             # 1会=30运=10800年
             # 1会统摄5正（会）卦
             # 午会（姤前2217-前57、大过前57-2103、鼎2103-4263、恒、巽）
             # 跨度太大，只要知道当前是午会、大过卦
-            hui = '会（大过卦）'
+            hui = '午'
             return hui
+
+        def huigua(self):
+            huigua = '大过'
+            return huigua
 
         def yun(self):
             # 1运=12世=360年
@@ -787,7 +862,7 @@ class Calendar:
             # 井1024-1383
             # 恒1384-1743
             # 姤1744-2103
-            yun = '运（姤卦）'
+            yun = '姤'
             return yun
 
         def shi(self, ganzhi_year):
@@ -801,13 +876,13 @@ class Calendar:
             # 大过2044—2103
             shi = None
             if 1864 <= ganzhi_year <= 1923:
-                shi = '世（讼卦）'
+                shi = '讼'
             elif 1924 <= ganzhi_year <= 1983:
-                shi = '世（巽卦）'
+                shi = '巽'
             elif 1984 <= ganzhi_year <= 2043:
-                shi = '世（鼎卦）'
+                shi = '鼎'
             elif 2044 <= ganzhi_year <= 2103:
-                shi = '世（大过卦）'
+                shi = '大过'
             return shi
 
         def xun(self, ganzhi_year):
@@ -817,59 +892,59 @@ class Calendar:
             # 运卦：讼1864-1923
             if 1864 <= ganzhi_year <= 1923:
                 if 1864 <= ganzhi_year <= 1873:
-                    xun = '旬（履卦）'
+                    xun = '履'
                 if 1874 <= ganzhi_year <= 1883:
-                    xun = '旬（否卦）'
+                    xun = '否'
                 if 1884 <= ganzhi_year <= 1893:
-                    xun = '旬（姤卦）'
+                    xun = '姤'
                 if 1894 <= ganzhi_year <= 1903:
-                    xun = '旬（涣卦）'
+                    xun = '涣'
                 if 1904 <= ganzhi_year <= 1913:
-                    xun = '旬（未济卦）'
+                    xun = '未济'
                 if 1914 <= ganzhi_year <= 1923:
-                    xun = '旬（困卦）'
+                    xun = '困'
             # 运卦：巽1924-1983
             if 1924 <= ganzhi_year <= 1983:
                 if 1924 <= ganzhi_year <= 1933:
-                    xun = '旬（小畜卦）'
+                    xun = '小畜'
                 if 1934 <= ganzhi_year <= 1943:
-                    xun = '旬（渐卦）'
+                    xun = '渐'
                 if 1944 <= ganzhi_year <= 1953:
-                    xun = '旬（涣卦）'
+                    xun = '涣'
                 if 1954 <= ganzhi_year <= 1963:
-                    xun = '旬（姤卦）'
+                    xun = '姤'
                 if 1964 <= ganzhi_year <= 1973:
-                    xun = '旬（蛊卦）'
+                    xun = '蛊'
                 if 1974 <= ganzhi_year <= 1983:
-                    xun = '旬（井卦）'
+                    xun = '井'
             # 运卦：鼎1984-2043
             if 1984 <= ganzhi_year <= 2043:
                 if 1984 <= ganzhi_year <= 1993:
-                    xun = '旬（大有卦）'
+                    xun = '大有'
                 if 1994 <= ganzhi_year <= 2003:
-                    xun = '旬（旅卦）'
+                    xun = '旅'
                 if 2004 <= ganzhi_year <= 2013:
-                    xun = '旬（未济卦）'
+                    xun = '未济'
                 if 2014 <= ganzhi_year <= 2023:
-                    xun = '旬（蛊卦）'
+                    xun = '蛊'
                 if 2024 <= ganzhi_year <= 2033:
-                    xun = '旬（姤卦）'
+                    xun = '姤'
                 if 2034 <= ganzhi_year <= 2043:
-                    xun = '旬（恒卦）'
+                    xun = '恒'
             # 运卦：大过2044-2103
             if 2044 <= ganzhi_year <= 2103:
                 if 2044 <= ganzhi_year <= 2053:
-                    xun = '旬（夬卦）'
+                    xun = '夬'
                 if 2054 <= ganzhi_year <= 2063:
-                    xun = '旬（咸卦）'
+                    xun = '咸'
                 if 2064 <= ganzhi_year <= 2073:
-                    xun = '旬（困卦）'
+                    xun = '困'
                 if 2074 <= ganzhi_year <= 2083:
-                    xun = '旬（井卦）'
+                    xun = '井'
                 if 2084 <= ganzhi_year <= 2093:
-                    xun = '旬（恒卦）'
+                    xun = '恒'
                 if 2094 <= ganzhi_year <= 2103:
-                    xun = '旬（姤卦）'
+                    xun = '姤'
             return xun
 
         def nian(self, ganzhi_year, shi):
@@ -889,21 +964,21 @@ class Calendar:
                      '晋 豫 观 比 剥'.split(' ')
             offset = 0
             idx = 0
-            if shi == '世（讼卦）':
+            if shi == '讼':
                 idx = ganzhi_year - 1864
                 offset = yuantu.index('讼')
-            elif shi == '世（巽卦）':
+            elif shi == '巽':
                 idx = ganzhi_year - 1924
                 offset = yuantu.index('巽')
-            elif shi == '世（鼎卦）':
+            elif shi == '鼎':
                 idx = ganzhi_year - 1984
                 offset = yuantu.index('鼎')
-            elif shi == '世（大过卦）':
+            elif shi == '大过':
                 idx = ganzhi_year - 2044
                 offset = yuantu.index('大过')
             if offset + idx >= 60:
                 res = yuantu[offset + idx - 60]
             else:
                 res = yuantu[offset + idx]
-            nian = '年（' + res + '卦）'
+            nian = res
             return nian

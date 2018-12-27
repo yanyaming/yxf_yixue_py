@@ -83,38 +83,15 @@ class Paipan:
             self.Pan[i]['三分'] = self.Bagua[self.Pan[i]['单卦']]['三分']
         return {'农历': lunar, '干支': ganzhi, '八卦': self.Bagua, '六十四卦': self.Liushisigua, '动爻': self.dongyao, '盘': self.Pan}
 
-    def output(self):
-        map_str = ''
-        for i in self.Pan.keys():
-            map_str += str(self.Pan[i]['宫数'])
-            map_str += self.Pan[i]['单卦']
-            map_str += self.Pan[i]['重卦']
-            if self.Pan[i]['升降'][0:1] == '升':
-                map_str += '↑'
-            if self.Pan[i]['升降'][0:1] == '降':
-                map_str += '↓'
-            if self.Pan[i]['升降'][1:2] == '升':
-                map_str += '↑'
-            if self.Pan[i]['升降'][1:2] == '降':
-                map_str += '↓'
-            map_str += self.Pan[i]['阴阳']
-            map_str += self.Pan[i]['三分']
-            map_str += '' + '|'
-            if int(i) % 3 == 0:
-                map_str += '\n'
-                map_str += '------\t------\t------\t------\t------\t------'
-                map_str += '\n'
-        return map_str
-
     def qigua_shijianqigua(self, lunar, ganzhi, lingdongshu):
         # 时间起卦法
         # 梅花易数时间取数法（本卦：（年+月+日）%8，（年+月+日+时）%8，动爻：（年+月+日）%6，取先天八卦数）。余0取坤
         # 有缺陷：变卦只有一个动爻，上下卦只有一个变化
         # 求年月日时数
-        nianshu = self.dizhiName.index(ganzhi.split('：')[1].split(' ')[0][1:2]) + 1
-        yueshu = lunar[0][2]
-        rishu = lunar[0][3]
-        shishu = lunar[0][4]
+        nianshu = self.dizhiName.index(ganzhi['年柱'][1:2]) + 1
+        yueshu = lunar['月']
+        rishu = lunar['日']
+        shishu = lunar['时']
         # 根据时间计算取卦数
         bengua_shang_num = (nianshu + yueshu + rishu) % 8
         if bengua_shang_num == 0:
@@ -353,3 +330,26 @@ class Paipan:
                 gua = i
                 gua_code = eval(self.Liushisigua[i]['二进制'])
         return [shanggua, xiagua, gua], [shanggua_code, xiagua_code, gua_code]
+
+    def output(self):
+        map_str = ''
+        for i in self.Pan.keys():
+            map_str += str(self.Pan[i]['宫数'])
+            map_str += self.Pan[i]['单卦']
+            map_str += self.Pan[i]['重卦']
+            if self.Pan[i]['升降'][0:1] == '升':
+                map_str += '↑'
+            if self.Pan[i]['升降'][0:1] == '降':
+                map_str += '↓'
+            if self.Pan[i]['升降'][1:2] == '升':
+                map_str += '↑'
+            if self.Pan[i]['升降'][1:2] == '降':
+                map_str += '↓'
+            map_str += self.Pan[i]['阴阳']
+            map_str += self.Pan[i]['三分']
+            map_str += '' + '|'
+            if int(i) % 3 == 0:
+                map_str += '\n'
+                map_str += '------\t------\t------\t------\t------\t------'
+                map_str += '\n'
+        return map_str
