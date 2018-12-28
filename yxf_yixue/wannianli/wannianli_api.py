@@ -36,7 +36,7 @@ class WannianliApi:
         return beijingshijian_now_obj
 
     # 获取完整时间历法信息，阳历、阴历、节气、干支必选，其余可选
-    def get_Calendar(self, datetime_obj, return_fengshui=False, return_zhongyi=False, return_huangji=False, return_str=False):
+    def get_Calendar(self, datetime_obj, return_fengshui=False, return_zhongyi=False, return_huangji=False, return_type='origin'):
         w = Calendar()
         solar_obj = w.Solar().solar(datetime_obj)
         lunar_obj = w.Lunar().lunar(datetime_obj)
@@ -54,9 +54,12 @@ class WannianliApi:
             huangji_obj = w.Huangjilifa().huangjijingshi(datetime_obj,solarTerm_obj)
         else:
             huangji_obj = {'类别': '皇极', '文本': ''}
-        if return_str:
+        if return_type == 'str':
             return solar_obj['文本']+'\n'+lunar_obj['文本']+'\n'+solarTerm_obj['文本']+'\n'+ganzhi_obj['文本']+'\n'+fengshui_obj['文本']+'\n'+zhongyi_obj['文本']+'\n'+huangji_obj['文本']
-        else:
+        elif return_type == 'json':
+            solarTerm_obj['交节气日'] = solarTerm_obj['交节气日'].strftime('%Y/%m/%d')
+            return [solar_obj, lunar_obj, solarTerm_obj, ganzhi_obj, fengshui_obj, zhongyi_obj, huangji_obj]
+        elif return_type == 'origin':
             return [solar_obj,lunar_obj,solarTerm_obj,ganzhi_obj,fengshui_obj,zhongyi_obj,huangji_obj]
 
     # 获取当前节与下一节信息，八字用到

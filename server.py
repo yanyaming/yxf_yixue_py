@@ -98,9 +98,11 @@ class wannianli(object):
                 dt_obj_c = c.get_Realsolar(zhidingshijian=dt_obj,jingdu=int(jingdu))['时间']
             if subop is None or subop == 'get_Calendar':
                 if op == 'str':
-                    res = c.get_Calendar(dt_obj_c, return_fengshui=return_fengshui, return_zhongyi=return_zhongyi,return_huangji=return_huangji,return_str=True)
+                    res = c.get_Calendar(dt_obj_c, return_fengshui=return_fengshui, return_zhongyi=return_zhongyi,return_huangji=return_huangji,return_type='str')
+                elif op == 'json':
+                    res = c.get_Calendar(dt_obj_c,return_fengshui=return_fengshui,return_zhongyi=return_zhongyi,return_huangji=return_huangji,return_type='json')
                 else:
-                    res = c.get_Calendar(dt_obj_c,return_fengshui=return_fengshui,return_zhongyi=return_zhongyi,return_huangji=return_huangji)
+                    res = c.get_Calendar(dt_obj_c, return_fengshui=return_fengshui, return_zhongyi=return_zhongyi,return_huangji=return_huangji, return_type='origin')
             elif subop == 'get_GanzhiYears':
                 res = c.get_GanzhiYears(start_year=int(start_year),end_year=int(end_year))
             elif subop == 'get_GanzhiOneYear':
