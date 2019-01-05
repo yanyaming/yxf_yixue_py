@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 import os
+import datetime
 import openpyxl
 import openpyxl.utils
 from ._db import Db
@@ -48,8 +49,8 @@ openpyxl说明：
 
 
 class Excel2Db:
-    def __init__(self):
-        self.db = Db()
+    def __init__(self, dbname):
+        self.db = Db(dbname)
 
     # 读取Excel
     @staticmethod
@@ -66,15 +67,19 @@ class Excel2Db:
             else:
                 table_col = []
                 for col in ws_origin[i + 1]:  # 每一数据行的列值
-                    table_col.append(col.value)
+                    if isinstance(col.value, datetime.datetime):  # 如果是日期时间格式则转化为字符串
+                        table_col.append(col.value.strftime('%Y-%m-%d'))
+                    elif col.value:  # 正常值
+                        table_col.append(col.value)
+                    else:  # 数字0；为了迎合愚蠢的excel，这里的空值不是空而是0，真正的空值在原表中用字符串'None'填充，为了区别，原表不能有空值
+                        table_col.append(0)
                 if table_col[0] is None or table_col[0] is 'None':  # 遇到空行退出（因为表格后面有自己加的注释）
                     break
                 table.append(table_col)
         return file_name.split('.')[0], table_colname, table
 
     # 搜索所有的excel，根据首行自动添加数据列，原封不动地存入数据库
-    def transform2db(self):
-        excelpath = os.path.join(os.path.dirname(os.path.abspath(__file__)),'cexcel')
+    def transform2db(self, excelpath):
         file_list = os.listdir(excelpath)
         for file in file_list:
             tablename, table_colname, table = self.read_excel(excelpath, file)

@@ -11,8 +11,8 @@ import sqlite3
 
 
 class Db:
-    def __init__(self):
-        self.conn = sqlite3.connect(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cdb.db'))
+    def __init__(self, dbname='utils.db'):
+        self.conn = sqlite3.connect(os.path.join(os.path.dirname(os.path.abspath(__file__)), dbname))
         self.cursor = self.conn.cursor()
 
     # 简单查询语句获取结果集，可根据条件筛选，中文的字段名需要用中括号括起来

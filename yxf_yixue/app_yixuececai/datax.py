@@ -1,9 +1,13 @@
-# build-in
 import os
-
-# site-packages
 import openpyxl
 import openpyxl.utils
+from utils._excel2db import Excel2Db
+
+
+# 生成数据库，只需要在最初执行一次
+def gen_db():
+    c = Excel2Db('app_yixuececai.db')
+    c.transform2db(os.path.join(os.path.dirname(os.path.abspath(__file__)),'origin_data'))
 
 
 class Shuli:

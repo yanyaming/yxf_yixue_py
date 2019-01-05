@@ -88,9 +88,9 @@ yxf_yixue_py : 易学数术推演
     /jinkoujue——金口诀
     /liuyao——六爻
     /xiaochengtu——小成图
-    /#ziweidoushu——（紫微斗数，希望未来能够加入）  
-	/#app_yixuececai——（易学测彩的初步探索，暂时无用）
-	/#app_yixuecegu——（易学测股的初步探索，暂时无用）
+    /ziweidoushu——（紫微斗数，希望未来能够加入）  
+	/app_yixuececai——（易学测彩的初步探索，暂时无用）
+	/app_yixuecegu——（易学测股的初步探索，暂时无用）
 
 ## 环境依赖（此项目非常依赖中文和统一编码，2版本对中文非常不友好，必须使用3版本）
 

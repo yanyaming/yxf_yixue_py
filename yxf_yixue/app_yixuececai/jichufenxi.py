@@ -1,5 +1,5 @@
 """
-投注各种玩法分析，列出总体与样本
+列出总体与样本
 
     itertools说明：
         product 笛卡尔积　　（有放回抽样排列）
@@ -10,6 +10,58 @@
 """
 
 import itertools
+
+
+def Pr(n, r, li=False):
+    # 有放回排列
+    n1 = []
+    for i in range(0, n):
+        n1.append(i)
+    return_list = list(itertools.product(n1, repeat=r))
+    count = len(return_list)
+    if li is True:
+        return count, return_list
+    else:
+        return count
+
+
+def P(n, r, li=False):
+    # 无放回排列
+    n1 = []
+    for i in range(0, n):
+        n1.append(i)
+    return_list = list(itertools.permutations(n1, r))
+    count = len(return_list)
+    if li is True:
+        return count, return_list
+    else:
+        return count
+
+
+def Cr(n, r, li=False):
+    # 有放回组合
+    n1 = []
+    for i in range(0, n):
+        n1.append(i)
+    return_list = list(itertools.combinations_with_replacement(n1, r))
+    count = len(return_list)
+    if li is True:
+        return count, return_list
+    else:
+        return count
+
+
+def C(n, r, li=False):
+    # 无放回组合
+    n1 = []
+    for i in range(0, n):
+        n1.append(i)
+    return_list = list(itertools.combinations(n1, r))
+    count = len(return_list)
+    if li is True:
+        return count, return_list
+    else:
+        return count
 
 
 class Pailiexing:
@@ -92,54 +144,3 @@ class Letouxing:
     def __init__(self):
         pass
 
-
-def Pr(n, r, li=False):
-    # 有放回排列
-    n1 = []
-    for i in range(0, n):
-        n1.append(i)
-    return_list = list(itertools.product(n1, repeat=r))
-    count = len(return_list)
-    if li is True:
-        return count, return_list
-    else:
-        return count
-
-
-def P(n, r, li=False):
-    # 无放回排列
-    n1 = []
-    for i in range(0, n):
-        n1.append(i)
-    return_list = list(itertools.permutations(n1, r))
-    count = len(return_list)
-    if li is True:
-        return count, return_list
-    else:
-        return count
-
-
-def Cr(n, r, li=False):
-    # 有放回组合
-    n1 = []
-    for i in range(0, n):
-        n1.append(i)
-    return_list = list(itertools.combinations_with_replacement(n1, r))
-    count = len(return_list)
-    if li is True:
-        return count, return_list
-    else:
-        return count
-
-
-def C(n, r, li=False):
-    # 无放回组合
-    n1 = []
-    for i in range(0, n):
-        n1.append(i)
-    return_list = list(itertools.combinations(n1, r))
-    count = len(return_list)
-    if li is True:
-        return count, return_list
-    else:
-        return count
