@@ -15,7 +15,13 @@ from yxf_yixue.app_yixuececai.yuce import *
 
 
 def work1():
-    pass
+    # 展示理论概率用于对照
+    print('理论组六概率：')
+    print(str(P(10, 3))+'/'+str(Pr(10, 3))+'='+str(P(10, 3) / Pr(10, 3)))
+    print('理论组六包7中奖概率：')
+    print(str(C(7, 3) * P(3, 3))+'/'+str(Pr(10, 3))+'='+str(C(7, 3) * P(3, 3) / Pr(10, 3)))
+    print('理论组六包4中奖概率：')
+    print(str(C(4, 3) * P(3, 3))+'/'+str(Pr(10, 3))+'='+str(C(4, 3) * P(3, 3) / Pr(10, 3)))
 
 
 def work2():
@@ -29,16 +35,11 @@ def work3():
 
 
 def work4():
-    # 投注分析
-    print('理论出组六概率：')
-    print(P(10,3)/Pr(10,3))
-    print('组六包7理论中奖概率：')
-    print(C(4,3)*P(3,3)/Pr(10,3))
-    # print(Pr(10, 3, True))
     pass
 
 
 if __name__ == '__main__':
     print("基础路径：", BASE_DIR)
     # gen_db()  # 生成数据库，只需要在最初执行一次
+    work1()
     work3()

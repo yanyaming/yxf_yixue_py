@@ -285,8 +285,8 @@ class Db2Cdata:
                             dizhi[i['地支1']]['次数'] -= 1
                             dizhi[i['地支2']]['次数'] -= 1
                             guanxi_banhui[i['地支1'] + i['地支2']] = {}
-                            guanxi_banhui[i['地支1'] + i['地支2']]['化'] = i['合会天干']
-                            guanxi_banhui[i['地支1'] + i['地支2']]['化系数'] = i['合会天干系数']
+                            guanxi_banhui[i['地支1'] + i['地支2']]['化'] = i['合会天干1']
+                            guanxi_banhui[i['地支1'] + i['地支2']]['化系数'] = i['合会天干1系数']
                 return guanxi,guanxi_banhui
             elif type == '地支三合':
                 guanxi = {}
