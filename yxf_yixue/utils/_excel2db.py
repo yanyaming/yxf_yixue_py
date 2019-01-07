@@ -51,10 +51,10 @@ openpyxl说明：
 class Excel2Db:
     def __init__(self, dbname):
         self.db = Db(dbname)
+        self.dbname = dbname
 
     # 读取Excel
-    @staticmethod
-    def read_excel(file_path, file_name):
+    def read_excel(self, file_path, file_name):
         realpath = os.path.join(file_path, file_name)
         wb_origin = openpyxl.load_workbook(realpath)
         ws_origin = wb_origin.active  # excel对象
@@ -66,13 +66,20 @@ class Excel2Db:
                     table_colname.append(col.value)
             else:
                 table_col = []
-                for col in ws_origin[i + 1]:  # 每一数据行的列值
-                    if isinstance(col.value, datetime.datetime):  # 如果是日期时间格式则转化为字符串
-                        table_col.append(col.value.strftime('%Y-%m-%d'))
-                    elif col.value:  # 正常值
-                        table_col.append(col.value)
-                    else:  # 数字0；为了迎合愚蠢的excel，这里的空值不是空而是0，真正的空值在原表中用字符串'None'填充，为了区别，原表不能有空值
-                        table_col.append(0)
+                for col in ws_origin[i + 1]:  # 循环加载每一数据行的列值，第一个空行也会被加载（随后会被for循环外部的判断退出）
+                    if col.value:  # 正常值
+                        if isinstance(col.value, datetime.datetime):  # 如果是日期时间格式则转化为字符串，独立逻辑
+                            table_col.append(col.value.strftime('%Y-%m-%d'))
+                        else:
+                            table_col.append(col.value)
+                    else:
+                        if self.dbname == 'utils.db':
+                            table_col.append(col.value)
+                        else:
+                            # 曾经出现过奇怪的BUG，数字0被认为是空值？后来BUG又自己好了？
+                            # 为以防万一，真正的空值在原表中用字符串'None'填充，为了区别，原表不能有空值
+                            # table_col.append(0)
+                            table_col.append(col.value)
                 if table_col[0] is None or table_col[0] is 'None':  # 遇到空行退出（因为表格后面有自己加的注释）
                     break
                 table.append(table_col)

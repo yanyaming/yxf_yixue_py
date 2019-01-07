@@ -26,9 +26,9 @@ import datetime
             ——返回星期几，星期一起0
 
         日期时间格式化：
-        dt.strftime('%b-%d-%Y %H:%M:%S')
+        dt.strftime('%Y-%m-%d %H:%M:%S')
             ——日期时间转格式化字符串
-        dt.strptime(str, '%b-%d-%Y %H:%M:%S')
+        dt.strptime(str, '%Y-%m-%d %H:%M:%S')
             ——格式化字符串转日期时间
         %y 两位数的年份表示（00-99）
         %Y 四位数的年份表示（000-9999）
@@ -80,7 +80,7 @@ class RealSolar:
         else:
             # 若指定的时间是字符串参数，则要转化为datetime对象
             if type(zhidingshijian) is str:
-                #datetime_obj = datetime.datetime.strptime(dt, '%Y/%m/%d %H:%M')  # 此句strptime()函数出现BUG，暂时无法解决
+                #datetime_obj = datetime.datetime.strptime(dt, '%Y/%m/%d %H:%M')  # strptime()函数出现BUG
                 datetime_obj = self._datetimeStr2Obj(zhidingshijian)  # 用自己写的解析函数替代
             # 若指定的时间是datetime对象，则直接使用
             else:
@@ -129,16 +129,26 @@ class RealSolar:
 
     @staticmethod
     def _datetimeStr2Obj(datetime_str):
-        datetime_obj = datetime.datetime(
-            # 此处能够转换的日期时间必须足位（不够位数的必须补0）
-            # 编程语言问题：字符串切片截取——从0开始，从左界开始，顺数几个就截取几位
-            # 例：2017-08-09 15:30
-            int(datetime_str[0:4]),   # year=2017
-            int(datetime_str[5:7]),   # month=08
-            int(datetime_str[8:10]),   # day=09
-            int(datetime_str[11:13]),  # hour=15
-            int(datetime_str[14:16])  # minute=30
-        )
+        try:
+            datetime_obj = datetime.datetime(
+                # 此处能够转换的日期时间必须足位（不够位数的必须补0）
+                # 编程语言问题：字符串切片截取——从0开始，从左界开始，顺数几个就截取几位
+                # 例：2017-08-09 15:30
+                int(datetime_str[0:4]),   # year=2017
+                int(datetime_str[5:7]),   # month=08
+                int(datetime_str[8:10]),   # day=09
+                int(datetime_str[11:13]),  # hour=15
+                int(datetime_str[14:16])  # minute=30
+            )
+        except ValueError:
+            datetime_obj = datetime.datetime(
+                # 此处能够转换的日期时间必须足位（不够位数的必须补0）
+                # 编程语言问题：字符串切片截取——从0开始，从左界开始，顺数几个就截取几位
+                # 例：2017-08-09
+                int(datetime_str[0:4]),  # year=2017
+                int(datetime_str[5:7]),  # month=08
+                int(datetime_str[8:10])  # day=09
+            )
         return datetime_obj
 
     @staticmethod

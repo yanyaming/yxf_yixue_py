@@ -11,25 +11,23 @@ sys.path.append(BASE_DIR)
 from app_yixuecegu.datax import *
 
 
-class Test:
-    def __init__(self):
-        pass
+def work1(self):
+    pass
 
-    def work1(self):
-        pass
 
-    def work2(self):
-        pass
+def work2(self):
+    pass
 
-    def work3(self):
-        pass
 
-    def work4(self):
-        pass
+def work3(self):
+    pass
+
+
+def work4(self):
+    pass
 
 
 if __name__ == '__main__':
     print("基础路径：", BASE_DIR)
-    t = Test()
     # gen_db()  # 生成数据库，只需要在最初执行一次
-    t.work3()
+    work3()
