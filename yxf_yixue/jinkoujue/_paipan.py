@@ -59,6 +59,7 @@ class Paipan:
         Renyuan, Jianggan, Shengan = self.qike_renyuandungan(ganzhi, Difen, Jiangshen, Guishen)
         self.Zhanshi['占时']['干支'] = ganzhi['文本']
         self.Zhanshi['月将']['干支'] = yuejiang
+        self.Zhanshi['四大空亡'] = self.qike_sidakongwang(ganzhi)
         self.Ke['人元']['干支'] = Renyuan
         self.Ke['贵神']['干支'] = Shengan + Guishen + '（' + GuishenName + '）'
         self.Ke['将神']['干支'] = Jianggan + Jiangshen + '（' + JiangshenName + '）'
@@ -71,6 +72,16 @@ class Paipan:
         # 加入纳音
         self.qike_nayin()
         return {'占时': self.Zhanshi, '盘': self.Pan, '课': self.Ke}
+
+    def qike_sidakongwang(self, ganzhi):
+        rizhu = ganzhi['日柱']
+        jiazi_idx = int(self.Liushijiazi[rizhu]['序号'])
+        if 1 <= jiazi_idx <= 10 or 31 <= jiazi_idx <= 40:  # 甲子、甲午旬，纳音水空亡
+            return '水'
+        elif 21 <= jiazi_idx <= 30 or 51 <= jiazi_idx <= 60:  # 甲申、甲寅旬，纳音金空亡
+            return '金'
+        else:  # 甲戌、甲辰旬，纳音五行具足
+            return '无'
 
     def qike_jiangshen(self, yuejiang, zhanshi, difen):
         # 月将加时起天盘
@@ -298,7 +309,9 @@ class Paipan:
         # 课
         map_str += '月将：'
         map_str += str(self.Zhanshi['月将']['干支'])+'\n'
-        map_str += str(self.Zhanshi['占时']['干支'])+'\n'
+        map_str += str(self.Zhanshi['占时']['干支'])+' '
+        map_str += '四大空亡：'
+        map_str += str(self.Zhanshi['四大空亡'])+'\n'
         map_str += '人元：'
         map_str += str(self.Ke['人元']['干支'])
         map_str += str(self.Ke['人元']['用神'])+'\t\t'
