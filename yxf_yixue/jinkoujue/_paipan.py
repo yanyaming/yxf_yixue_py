@@ -5,6 +5,7 @@ from ..utils import Db, Db2Cdata
 
 class Paipan:
     def __init__(self):
+        # 初始数据
         self.wuxingName = '木 火 土 金 水'.split(' ')
         self.tianganName = '甲 乙 丙 丁 戊 己 庚 辛 壬 癸'.split(' ')
         self.dizhiName = '子 丑 寅 卯 辰 巳 午 未 申 酉 戌 亥'.split(' ')
@@ -20,7 +21,6 @@ class Paipan:
         self.Bagua = self.db.get_tabledict_dict("[基础表-八卦]")
         self.Liushisigua = self.db.get_tabledict_dict("[基础表-六十四卦]")
         self.Liushijiazi = self.db.get_tabledict_dict("[基础表-六十甲子]")
-        self.Luoshu = self.db.get_tabledict_dict("[基础表-洛书九宫格]")
 
     def paipan(self, ganzhi, difen, yuejiang, zhanshi):
         # 时间信息
@@ -54,26 +54,27 @@ class Paipan:
         if zhanshi is None:
             zhanshi = ganzhi['时柱'][1:2]
         # 起课
-        Difen, Jiangshen, JiangshenName = self.qike_jiangshen(yuejiang, zhanshi, difen)
-        Guishen, GuishenName = self.qike_guishen(ganzhi, zhanshi, Difen)
-        Renyuan, Jianggan, Shengan = self.qike_renyuandungan(ganzhi, Difen, Jiangshen, Guishen)
+        Difen, Jiangshen, JiangshenName = self._qike_jiangshen(yuejiang, zhanshi, difen)
+        Guishen, GuishenName = self._qike_guishen(ganzhi, zhanshi, Difen)
+        Renyuan, Jianggan, Shengan = self._qike_renyuandungan(ganzhi, Difen, Jiangshen, Guishen)
         self.Zhanshi['占时']['干支'] = ganzhi['文本']
         self.Zhanshi['月将']['干支'] = yuejiang
-        self.Zhanshi['四大空亡'] = self.qike_sidakongwang(ganzhi)
+        self.Zhanshi['四大空亡'] = self._qike_sidakongwang(ganzhi)
         self.Ke['人元']['干支'] = Renyuan
         self.Ke['贵神']['干支'] = Shengan + Guishen + '（' + GuishenName + '）'
         self.Ke['将神']['干支'] = Jianggan + Jiangshen + '（' + JiangshenName + '）'
         self.Ke['地分']['干支'] = Difen
         # 判断阴阳、五行、旺衰、用神
-        self.qike_wuxing()
-        self.qike_yinyang()
-        self.qike_wangshuai()
-        self.qike_yongshen()
+        self._qike_wuxing()
+        self._qike_yinyang()
+        self._qike_wangshuai()
+        self._qike_yongshen()
         # 加入纳音
-        self.qike_nayin()
-        return {'占时': self.Zhanshi, '盘': self.Pan, '课': self.Ke}
+        self._qike_nayin()
+        self.Res = {'占时': self.Zhanshi, '盘': self.Pan, '课': self.Ke}
+        return self.Res
 
-    def qike_sidakongwang(self, ganzhi):
+    def _qike_sidakongwang(self, ganzhi):
         rizhu = ganzhi['日柱']
         jiazi_idx = int(self.Liushijiazi[rizhu]['序号'])
         if 1 <= jiazi_idx <= 10 or 31 <= jiazi_idx <= 40:  # 甲子、甲午旬，纳音水空亡
@@ -83,7 +84,7 @@ class Paipan:
         else:  # 甲戌、甲辰旬，纳音五行具足
             return '无'
 
-    def qike_jiangshen(self, yuejiang, zhanshi, difen):
+    def _qike_jiangshen(self, yuejiang, zhanshi, difen):
         # 月将加时起天盘
         idx = self.dizhiName.index(yuejiang) - self.dizhiName.index(zhanshi)
         if idx < 0:
@@ -99,7 +100,7 @@ class Paipan:
         JiangshenName = self.Pan[str(self.dizhiName.index(Difen) + 1)]['将神']
         return Difen, Jiangshen, JiangshenName
 
-    def qike_guishen(self, ganzhi, zhanshi, Difen):
+    def _qike_guishen(self, ganzhi, zhanshi, Difen):
         # 依照贵人歌诀取天盘贵人，即首位
         rigan = ganzhi['日柱'][0:1]
         guiren = None
@@ -148,7 +149,7 @@ class Paipan:
         GuishenName = self.Pan[str(self.dizhiName.index(Difen) + 1)]['贵神']
         return Guishen, GuishenName
 
-    def qike_renyuandungan(self, ganzhi, Difen, Jiangshen, Guishen):
+    def _qike_renyuandungan(self, ganzhi, Difen, Jiangshen, Guishen):
         rigan = ganzhi['日柱'][0:1]
         # 五子元遁
         if rigan in ['甲', '己']:
@@ -177,19 +178,19 @@ class Paipan:
         Shengan = self.tianganName[idx3]
         return Renyuan, Jianggan, Shengan
 
-    def qike_wuxing(self):
+    def _qike_wuxing(self):
         self.Ke['人元']['五行'] = self.Tiangan[self.Ke['人元']['干支']]['五行']
         self.Ke['贵神']['五行'] = self.Dizhi[self.Ke['贵神']['干支'][1:2]]['五行']
         self.Ke['将神']['五行'] = self.Dizhi[self.Ke['将神']['干支'][1:2]]['五行']
         self.Ke['地分']['五行'] = self.Dizhi[self.Ke['地分']['干支']]['五行']
 
-    def qike_yinyang(self):
+    def _qike_yinyang(self):
         self.Ke['人元']['阴阳'] = self.Tiangan[self.Ke['人元']['干支']]['阴阳']
         self.Ke['贵神']['阴阳'] = self.Dizhi[self.Ke['贵神']['干支'][1:2]]['阴阳']
         self.Ke['将神']['阴阳'] = self.Dizhi[self.Ke['将神']['干支'][1:2]]['阴阳']
         self.Ke['地分']['阴阳'] = self.Dizhi[self.Ke['地分']['干支']]['阴阳']
 
-    def qike_wangshuai(self):
+    def _qike_wangshuai(self):
         # 生克情况：
         # 1.4种五行，必然有3克，必然有1个不受克，取不受克者为旺
         # 2.3种五行，则有某个五行出现2次（无影响），有1或2克，有1或2个不受克，若有2个不受克，则其中必有1个克他爻，取克他爻者为旺
@@ -267,7 +268,7 @@ class Paipan:
             if self.Ke[i]['五行'] == si:
                 self.Ke[i]['旺衰'] = '死'
 
-    def qike_yongshen(self):
+    def _qike_yongshen(self):
         tongji = 0
         for i in self.Ke.keys():
             if self.Ke[i]['阴阳'] == '阳':
@@ -287,7 +288,7 @@ class Paipan:
         if tongji == 4:  # 纯阳，以神为用
             self.Ke['贵神']['用神'] = '用'
 
-    def qike_nayin(self):
+    def _qike_nayin(self):
         self.Ke['贵神']['纳音'] = '纳音' + self.Liushijiazi[self.Ke['贵神']['干支'].split('（')[0]]['纳音五行']
         self.Ke['将神']['纳音'] = '纳音' + self.Liushijiazi[self.Ke['将神']['干支'].split('（')[0]]['纳音五行']
 

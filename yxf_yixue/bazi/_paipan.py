@@ -5,6 +5,7 @@ from ..utils import Db, Db2Cdata
 
 class Paipan:
     def __init__(self):
+        # 初始数据
         self.wuxingName = '木 火 土 金 水'.split(' ')
         self.tianganName = '甲 乙 丙 丁 戊 己 庚 辛 壬 癸'.split(' ')
         self.dizhiName = '子 丑 寅 卯 辰 巳 午 未 申 酉 戌 亥'.split(' ')
@@ -17,7 +18,6 @@ class Paipan:
         self.Bagua = self.db.get_tabledict_dict("[基础表-八卦]")
         self.Liushisigua = self.db.get_tabledict_dict("[基础表-六十四卦]")
         self.Liushijiazi = self.db.get_tabledict_dict("[基础表-六十甲子]")
-        self.Luoshu = self.db.get_tabledict_dict("[基础表-洛书九宫格]")
 
     def paipan(self, datetime_obj, calendar, solarTermJie, xingbie):
         self.solar = calendar[0]
@@ -40,19 +40,20 @@ class Paipan:
                          '时干': {'宫主': self.ganzhi['时柱'][0:1]},
                          '时支': {'宫主': self.ganzhi['时柱'][1:2]}}
         self.Dayun = {}
-        self.bazi()
-        self.sizhu()
-        self.shishen()
-        self.dizhi_canggan()
-        self.wuxing_wangshuai()
-        self.rigan_shierzhangsheng()
-        self.ganzhi_kongwang(self.ganzhi)
-        self.ganzhi_guanxi()
+        self._bazi()
+        self._sizhu()
+        self._shishen()
+        self._dizhi_canggan()
+        self._wuxing_wangshuai()
+        self._rigan_shierzhangsheng()
+        self._ganzhi_kongwang(self.ganzhi)
+        self._ganzhi_guanxi()
         self.xingbie = xingbie
-        self.dayun(datetime_obj, solarTermJie, xingbie)
-        return {'干支':self.ganzhi,'五行':self.Wuxing, '天干':self.Tiangan, '地支':self.Dizhi, '八字全局':self.Baziquanju, '八字四柱':self.Bazisizhu, '八字单字':self.Bazibazi, '干支关系':self.GZguanxi, '大运':self.Dayun}
+        self._dayun(datetime_obj, solarTermJie, xingbie)
+        self.Res = {'干支':self.ganzhi,'五行':self.Wuxing, '天干':self.Tiangan, '地支':self.Dizhi, '八字全局':self.Baziquanju, '八字四柱':self.Bazisizhu, '八字单字':self.Bazibazi, '干支关系':self.GZguanxi, '大运':self.Dayun}
+        return self.Res
 
-    def bazi(self):
+    def _bazi(self):
         # 胎元：天干为月干+1，地支为月支+3
         taiyuan_tianganidx = self.tianganName.index(self.Bazibazi['月干']['宫主']) + 1
         if taiyuan_tianganidx >= 10:
@@ -68,11 +69,11 @@ class Paipan:
         # 命卦：以出生时间起六爻卦，只取卦名
         self.Baziquanju['命卦'] = ''
 
-    def sizhu(self):
+    def _sizhu(self):
         for zhu in self.Bazisizhu.keys():
             self.Bazisizhu[zhu]['纳音五行'] = self.Liushijiazi[self.Bazisizhu[zhu]['宫主']]['纳音五行']
 
-    def shishen(self):
+    def _shishen(self):
         rigan = self.Bazibazi['日干']['宫主']
         riganwuxing = self.Tiangan[rigan]['五行']
         riganyinyang = self.Tiangan[rigan]['阴阳']
@@ -158,7 +159,7 @@ class Paipan:
                 else:
                     self.Dizhi[i]['十神'] = '伤官'
 
-    def dizhi_canggan(self):
+    def _dizhi_canggan(self):
         table = self.db.get_tabledict_dict('[关联表-地支藏干]')
         for dizhi in [self.Bazibazi['年支'], self.Bazibazi['月支'], self.Bazibazi['日支'], self.Bazibazi['时支']]:
             dizhi['藏干'] = {}
@@ -169,7 +170,7 @@ class Paipan:
             dizhi['藏干']['藏干3'] = table[dizhi['宫主']]['藏干3']
             dizhi['藏干']['藏干3系数'] = table[dizhi['宫主']]['藏干3系数']
 
-    def wuxing_wangshuai(self):
+    def _wuxing_wangshuai(self):
         table = self.db.get_tabledict_dict('[关联表-五行旺衰]')
         self.Wuxing['木']['旺衰'] = table['木'][self.Bazibazi['月支']['宫主']]
         self.Wuxing['火']['旺衰'] = table['火'][self.Bazibazi['月支']['宫主']]
@@ -181,7 +182,7 @@ class Paipan:
                 if self.Tiangan[tiangan]['五行'] == wuxing:
                     self.Tiangan[tiangan]['旺衰'] = self.Wuxing[wuxing]['旺衰']
 
-    def rigan_shierzhangsheng(self):
+    def _rigan_shierzhangsheng(self):
         table = self.db.get_tabledict_dict('[关联表-天干十二长生运]')
         self.Bazibazi['日干']['十二长生'] = table[self.Bazibazi['日干']['宫主']]
         self.Bazibazi['日干']['十二长生'].pop('序号')
@@ -189,11 +190,11 @@ class Paipan:
         self.Bazibazi['日干']['十二长生'].pop('五行')
         self.Bazibazi['日干']['十二长生'].pop('阴阳')
 
-    def ganzhi_kongwang(self, ganzhi):
+    def _ganzhi_kongwang(self, ganzhi):
         kongwang = ganzhi['四柱空亡']
         self.Bazibazi['日干']['空亡'] = kongwang
 
-    def ganzhi_guanxi(self):
+    def _ganzhi_guanxi(self):
         # 天干数据整理
         tiangan_count = {}
         for i in self.Tiangan.keys():
@@ -228,7 +229,7 @@ class Paipan:
         # 地支六害：
         self.GZguanxi['地支六害'] = self.db2cdata.get_ganzhiguanxi(input=dizhi_count, type='地支六害')
 
-    def dayun(self, dt, solarTermJie, xingbie):
+    def _dayun(self, dt, solarTermJie, xingbie):
         # 确定大运。从所生之月建依次按顺逆序得出。男年干阳、女年干阴顺行；男年干阴、女年干阳逆行。
         # 大运的年限已经超出了万年历的范围，不能通过万年历查询，需要自己实现推算年干支
         yuejian = self.Bazisizhu['月柱']['宫主']

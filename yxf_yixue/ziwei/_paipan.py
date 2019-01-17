@@ -5,6 +5,7 @@ from ..utils import Db, Db2Cdata
 
 class Paipan:
     def __init__(self):
+        # 初始数据
         self.wuxingName = '木 火 土 金 水'.split(' ')
         self.tianganName = '甲 乙 丙 丁 戊 己 庚 辛 壬 癸'.split(' ')
         self.dizhiName = '子 丑 寅 卯 辰 巳 午 未 申 酉 戌 亥'.split(' ')
@@ -17,10 +18,11 @@ class Paipan:
         self.Bagua = self.db.get_tabledict_dict("[基础表-八卦]")
         self.Liushisigua = self.db.get_tabledict_dict("[基础表-六十四卦]")
         self.Liushijiazi = self.db.get_tabledict_dict("[基础表-六十甲子]")
-        self.Luoshu = self.db.get_tabledict_dict("[基础表-洛书九宫格]")
 
-    def paipan(self, datetime_obj, calendar, solarTermJie, xingbie):
-        pass
+    def paipan(self, datetime_obj):
+        self.Res = {}
+        return self.Res
 
     def output(self):
-        pass
+        map_str = ''
+        return map_str

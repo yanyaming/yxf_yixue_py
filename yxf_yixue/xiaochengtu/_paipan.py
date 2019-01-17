@@ -5,13 +5,9 @@ from ..utils import Db, Db2Cdata
 
 class Paipan:
     def __init__(self):
-        # 地支表
+        # 初始数据
         self.dizhiName = '子 丑 寅 卯 辰 巳 午 未 申 酉 戌 亥'.split(' ')
-        # 洛书九宫表
-        self.Pan = {'1': {'宫数': 4, '宫卦': '巽'}, '2': {'宫数': 9, '宫卦': '离'}, '3': {'宫数': 2, '宫卦': '坤'},
-                    '4': {'宫数': 3, '宫卦': '震'}, '5': {'宫数': 5, '宫卦': '中'}, '6': {'宫数': 7, '宫卦': '兑'},
-                    '7': {'宫数': 8, '宫卦': '艮'}, '8': {'宫数': 1, '宫卦': '坎'}, '9': {'宫数': 6, '宫卦': '乾'}}
-        # 导入卦数据
+        # 导入数据
         self.db = Db()
         self.db2cdata = Db2Cdata()
         self.Wuxing = self.db.get_tabledict_dict("[基础表-五行]")
@@ -20,16 +16,18 @@ class Paipan:
         self.Bagua = self.db.get_tabledict_dict("[基础表-八卦]")
         self.Liushisigua = self.db.get_tabledict_dict("[基础表-六十四卦]")
         self.Liushijiazi = self.db.get_tabledict_dict("[基础表-六十甲子]")
-        self.Luoshu = self.db.get_tabledict_dict("[基础表-洛书九宫格]")
 
     def paipan(self, lunar, ganzhi, lingdongshu, shuziqigua, guizangfangfa):
         # 起卦
         if shuziqigua is None:
-            gua, gua_code = self.qigua_shijianqigua(lunar, ganzhi, lingdongshu)
+            gua, gua_code = self._qigua_shijianqigua(lunar, ganzhi, lingdongshu)
         elif len(shuziqigua) == 8 or len(shuziqigua) == 4:
-            gua, gua_code = self.qigua_shuziqigua(shuziqigua)
+            gua, gua_code = self._qigua_shuziqigua(shuziqigua)
         else:
-            return '', '', ''
+            return ''
+        self.Pan = {'1': {'宫数': 4, '宫卦': '巽'}, '2': {'宫数': 9, '宫卦': '离'}, '3': {'宫数': 2, '宫卦': '坤'},
+                    '4': {'宫数': 3, '宫卦': '震'}, '5': {'宫数': 5, '宫卦': '中'}, '6': {'宫数': 7, '宫卦': '兑'},
+                    '7': {'宫数': 8, '宫卦': '艮'}, '8': {'宫数': 1, '宫卦': '坎'}, '9': {'宫数': 6, '宫卦': '乾'}}
         # 根据本卦和变卦进行各种组合，排盘
         # 把本卦、变卦共4个填入上下左右4个宫
         self.Pan['2']['单卦'] = gua[0]  # 本卦上
@@ -41,7 +39,7 @@ class Paipan:
         self.Pan['4']['重卦'] = gua[5]
         self.Pan['6']['重卦'] = gua[5]
         # 求互卦
-        hugua, hugua_code = self.qigua_hugua(gua_code, shuziqigua)
+        hugua, hugua_code = self._qigua_hugua(gua_code, shuziqigua)
         self.Pan['1']['单卦'] = hugua[0]
         self.Pan['3']['单卦'] = hugua[1]
         self.Pan['7']['单卦'] = hugua[2]
@@ -51,7 +49,7 @@ class Paipan:
         self.Pan['7']['重卦'] = hugua[5]
         self.Pan['9']['重卦'] = hugua[5]
         # 归藏法求中宫卦
-        guizang, guizang_code = self.qigua_guizang(guizangfangfa, gua_code, hugua_code)
+        guizang, guizang_code = self._qigua_guizang(guizangfangfa, gua_code, hugua_code)
         self.Pan['5']['单卦'] = guizang[0]
         if guizang[2] is not None:
             self.Pan['5']['重卦'] = guizang[2]
@@ -81,9 +79,10 @@ class Paipan:
         # 卦之大中小
         for i in self.Pan.keys():
             self.Pan[i]['三分'] = self.Bagua[self.Pan[i]['单卦']]['三分']
-        return {'农历': lunar, '干支': ganzhi, '八卦': self.Bagua, '六十四卦': self.Liushisigua, '动爻': self.dongyao, '盘': self.Pan}
+        self.Res = {'农历': lunar, '干支': ganzhi, '八卦': self.Bagua, '六十四卦': self.Liushisigua, '动爻': self.dongyao, '盘': self.Pan}
+        return self.Res
 
-    def qigua_shijianqigua(self, lunar, ganzhi, lingdongshu):
+    def _qigua_shijianqigua(self, lunar, ganzhi, lingdongshu):
         # 时间起卦法
         # 梅花易数时间取数法（本卦：（年+月+日）%8，（年+月+日+时）%8，动爻：（年+月+日）%6，取先天八卦数）。余0取坤
         # 有缺陷：变卦只有一个动爻，上下卦只有一个变化
@@ -146,7 +145,7 @@ class Paipan:
                 biangua_code = eval(self.Liushisigua[i]['二进制'])
         return [bengua_shang, bengua_xia, biangua_shang, biangua_xia, bengua, biangua], [bengua_shang_code, bengua_xia_code, biangua_shang_code, biangua_xia_code, bengua_code, biangua_code]
 
-    def qigua_shuziqigua(self, shuziqigua):
+    def _qigua_shuziqigua(self, shuziqigua):
         # 数字起卦法
         # 同样采用先天八卦纳数
         bengua_shang_num = shuziqigua[0] % 8
@@ -198,7 +197,7 @@ class Paipan:
                 biangua_code = eval(self.Liushisigua[i]['二进制'])
         return [bengua_shang, bengua_xia, biangua_shang, biangua_xia, bengua, biangua], [bengua_shang_code, bengua_xia_code, biangua_shang_code, biangua_xia_code, bengua_code, biangua_code]
 
-    def qigua_hugua(self, gua_code, shuziqigua):
+    def _qigua_hugua(self, gua_code, shuziqigua):
         # 互卦
         if shuziqigua is None:
             hugua = []
@@ -287,7 +286,7 @@ class Paipan:
         hugua_code.append(biangua_hugua_code)
         return hugua, hugua_code
 
-    def qigua_guizang(self, guizangfangfa, gua_code, hugua_code):
+    def _qigua_guizang(self, guizangfangfa, gua_code, hugua_code):
         # 归藏入天盘中宫方法：
         # 1.四正（通用），四正归藏为上卦显示，四隅归藏为下卦不显示
         # 2.四隅，四隅归藏为上卦显示，四正归藏为下卦不显示？

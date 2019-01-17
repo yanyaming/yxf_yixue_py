@@ -5,6 +5,7 @@ from ..utils import Db, Db2Cdata
 
 class Paipan:
     def __init__(self):
+        # 初始数据
         self.wuxingName = '木 火 土 金 水'.split(' ')
         self.tianganName = '甲 乙 丙 丁 戊 己 庚 辛 壬 癸'.split(' ')
         self.dizhiName = '子 丑 寅 卯 辰 巳 午 未 申 酉 戌 亥'.split(' ')
@@ -17,7 +18,6 @@ class Paipan:
         self.Bagua = self.db.get_tabledict_dict("[基础表-八卦]")
         self.Liushisigua = self.db.get_tabledict_dict("[基础表-六十四卦]")
         self.Liushijiazi = self.db.get_tabledict_dict("[基础表-六十甲子]")
-        self.Luoshu = self.db.get_tabledict_dict("[基础表-洛书九宫格]")
 
     def paipan(self, lunar, ganzhi, qiguafangfa, qiguashuru, naganzhifangfa):
         # 阴阳爻符号
@@ -34,13 +34,13 @@ class Paipan:
         guashu = None
         dongyao = None
         if qiguafangfa in ['标准时间起卦', '输入动爻时间起卦']:
-            guashu, dongyao = self.qigua_shijianqigua(lunar, ganzhi, qiguashuru, qiguafangfa)
+            guashu, dongyao = self._qigua_shijianqigua(lunar, ganzhi, qiguashuru, qiguafangfa)
         elif qiguafangfa in ['两数字起卦', '三数字起卦', '四数字无动爻起卦', '八数字起卦']:
-            guashu, dongyao = self.qigua_shuziqigua(qiguashuru, qiguafangfa)
+            guashu, dongyao = self._qigua_shuziqigua(qiguashuru, qiguafangfa)
         elif qiguafangfa == '爻位起卦':
-            guashu, dongyao = self.qigua_yaoweiqigua(qiguashuru, qiguafangfa)  # 起卦输入形如：[2,7,5,9,4,1,[1,3,6]]（前6个为爻位数字从上到初，第7个为动爻组）
+            guashu, dongyao = self._qigua_yaoweiqigua(qiguashuru, qiguafangfa)  # 起卦输入形如：[2,7,5,9,4,1,[1,3,6]]（前6个为爻位数字从上到初，第7个为动爻组）
         # 根据返回的取卦数化卦
-        gua, gua_code = self.qigua_huagua(guashu, dongyao)
+        gua, gua_code = self._qigua_huagua(guashu, dongyao)
         # 装卦爻
         self.Pan['16']['卦爻'] = self.yinyangYao[(gua_code[0] & 0b100) >> 2]
         self.Pan['15']['卦爻'] = self.yinyangYao[(gua_code[0] & 0b010) >> 1]
@@ -75,14 +75,15 @@ class Paipan:
         self.Pan['20']['卦宫'] = self.Liushisigua[gua[5]]['卦宫']
         self.Pan['20']['补充'] += ganzhi['四柱空亡'][2]
         # 装天干、地支（五行）、世应、六亲、六神
-        self.zhuanggua_dizhiwuxing(naganzhifangfa)
-        self.zhuanggua_tiangan(ganzhi, naganzhifangfa)
-        self.zhuanggua_shiying()
-        self.zhuanggua_liuqin()
-        self.zhuanggua_liushen(ganzhi)
-        return {'农历': lunar, '干支': ganzhi, '八卦': self.Bagua, '动爻': self.dongyao, '盘': self.Pan}
+        self._zhuanggua_dizhiwuxing(naganzhifangfa)
+        self._zhuanggua_tiangan(ganzhi, naganzhifangfa)
+        self._zhuanggua_shiying()
+        self._zhuanggua_liuqin()
+        self._zhuanggua_liushen(ganzhi)
+        self.Res = {'农历': lunar, '干支': ganzhi, '八卦': self.Bagua, '动爻': self.dongyao, '盘': self.Pan}
+        return self.Res
 
-    def qigua_shijianqigua(self, lunar, ganzhi, qiguashuru, qiguafangfa):
+    def _qigua_shijianqigua(self, lunar, ganzhi, qiguashuru, qiguafangfa):
         # 时间起卦法
         bengua_shang_num = None
         bengua_xia_num = None
@@ -130,7 +131,7 @@ class Paipan:
                     dongyao.append(i)
         return [bengua_shang_num, bengua_xia_num], dongyao
 
-    def qigua_shuziqigua(self, qiguashuru, qiguafangfa):
+    def _qigua_shuziqigua(self, qiguashuru, qiguafangfa):
         # 数字起卦法
         # 同样采用先天八卦纳数
         guashu = []
@@ -180,7 +181,7 @@ class Paipan:
             pass
         return guashu, dongyao
 
-    def qigua_yaoweiqigua(self, qiguashuru, qiguafangfa):
+    def _qigua_yaoweiqigua(self, qiguashuru, qiguafangfa):
         # 爻位起卦法
         bengua_shang_num = None
         bengua_xia_num = None
@@ -204,7 +205,7 @@ class Paipan:
                 dongyao.append(i)
         return [bengua_shang_num, bengua_xia_num], dongyao
 
-    def qigua_huagua(self, guashu, dongyao):
+    def _qigua_huagua(self, guashu, dongyao):
         # 根据取卦数取卦，按照先天八卦数取卦
         bengua_shang_num = guashu[0]
         bengua_xia_num = guashu[1]
@@ -264,7 +265,7 @@ class Paipan:
                 biangua_code = eval(self.Liushisigua[i]['二进制'])
         return [bengua_shang, bengua_xia, biangua_shang, biangua_xia, bengua, biangua], [bengua_shang_code, bengua_xia_code, biangua_shang_code, biangua_xia_code, bengua_code, biangua_code]
 
-    def zhuanggua_dizhiwuxing(self, naganzhifangfa):
+    def _zhuanggua_dizhiwuxing(self, naganzhifangfa):
         if naganzhifangfa == '传统京氏':
             # 乾卦从最下面起的三爻为子，寅，辰；上面三爻为午，申，戌；
             # 兑卦从最下面起的三爻为巳，卯，丑；上面三爻为亥，酉，未；
@@ -315,7 +316,7 @@ class Paipan:
                 self.Pan['2' + str(i + 1)]['纳支'] = nazhi[biangua_shanggua][i]
                 self.Pan['2' + str(i + 1)]['五行'] = self.Dizhi[self.Pan['2' + str(i + 1)]['纳支']]['五行']
 
-    def zhuanggua_tiangan(self, ganzhi, naganzhifangfa):
+    def _zhuanggua_tiangan(self, ganzhi, naganzhifangfa):
         if naganzhifangfa == '传统京氏':
             # 乾纳甲壬坎纳戊
             # 离纳己土震纳庚
@@ -357,7 +358,7 @@ class Paipan:
                     idx -= 10
                 self.Pan[i]['纳干'] = self.tianganName[idx]
 
-    def zhuanggua_shiying(self):
+    def _zhuanggua_shiying(self):
         # 天同二世天变五
         # 地同四世地变初
         # 人同游魂（四世）人变归（三世）
@@ -412,7 +413,7 @@ class Paipan:
                 self.Pan[str(i + 1) + '3']['世应'] = '世'
                 self.Pan[str(i + 1) + '6']['世应'] = '应'
 
-    def zhuanggua_liuqin(self):
+    def _zhuanggua_liuqin(self):
         # 首先确定得出的本卦是何宫（八宫六十四卦）
         # 然后以这个五行为“我”，根据所纳地支的五行，依“生我者父母，我生者子孙，克我者官鬼，我克者妻财，相同者兄弟”的关系来定六亲
         bengua_wuxing = self.Bagua[self.Pan['10']['卦宫']]['五行']
@@ -443,7 +444,7 @@ class Paipan:
             if self.Pan['2' + str(i + 1)]['五行'] == xiongdi:
                 self.Pan['2' + str(i + 1)]['六亲'] = '兄弟'
 
-    def zhuanggua_liushen(self, ganzhi):
+    def _zhuanggua_liushen(self, ganzhi):
         # 根据日干：甲乙起青龙，丙丁起朱雀，戊日起勾陈，己日起腾蛇，庚辛起白虎，壬癸起玄武（正好是对应的五行）
         # 按照青龙、朱雀、勾陈、腾蛇、白虎、玄武的顺序，由初爻装至六爻
         rigan = ganzhi['日柱'][0:1]

@@ -13,6 +13,6 @@ if __name__ == '__main__':
     a = QimenApi()
     string = '1996/02/29 23:16'
     obj = datetime.datetime(1996, 7, 12, 12, 40)
-    print(a.paipan(obj, xingbie='男'))
+    print(a.paipan(obj))
     print(a.print_pan())
     pass

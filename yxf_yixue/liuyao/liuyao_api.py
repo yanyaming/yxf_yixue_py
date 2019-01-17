@@ -2,55 +2,52 @@
 # -*- coding: utf-8 -*-
 from ..wannianli import WannianliApi
 from ._paipan import Paipan
-from ._fenxi import Fenxi
+from ._fenxi import Chuantongfenxi, Cecaifenxi
 
 
 class LiuyaoApi:
     def __init__(self):
-        self.p = None
+        self.P = None
+        self.pan = None
+        self.chuantongfenxi = None
+        self.cecaifenxi = None
 
     def paipan(self, datetime_obj, qiguafangfa='标准时间起卦', qiguashuru=None, naganzhifangfa='传统京氏'):
         a = WannianliApi()
-        self.p = Paipan()
+        self.P = Paipan()
         calendar = a.get_Calendar(datetime_obj)
-        res = self.p.paipan(calendar[1], calendar[3], qiguafangfa=qiguafangfa, qiguashuru=qiguashuru, naganzhifangfa=naganzhifangfa)
+        res = self.P.paipan(calendar[1], calendar[3], qiguafangfa=qiguafangfa, qiguashuru=qiguashuru, naganzhifangfa=naganzhifangfa)
         return res
 
     def print_pan(self):
-        if self.p is None:
+        if self.P is None:
             print('请先调用paipan()排盘后再使用本函数！')
             return None
         else:
-            return self.p.output()
+            if self.pan.get('标签', None):
+                if self.pan['标签'] == '传统分析':
+                    output = self.P.output()
+                    output += self.chuantongfenxi.output_addition()
+                    return output
+                elif self.pan['标签'] == '测彩分析':
+                    output = self.P.output()
+                    output += self.cecaifenxi.output_addition()
+                    return output
+            else:
+                return self.P.output()
 
-    # def get_chuantongfenxi(self):
-    #     if self.p is None:
-    #         print('请先调用paipan()排盘后再使用本函数！')
-    #         return None
-    #     f = Fenxi().Chuantongfenxi()
-    #     s = f.fenxi(self.dt, self.Info, self.Pan)
-    #     return s
-    #
-    # def get_danqishikongfa(self, dt, qiguashuru):
-    #     # 起卦输入是某位的数值转化成的爻位
-    #     a = wannianli.wannianli_api.Api()
-    #     self.p = Paipan()
-    #     return_list = a.get_Calendar(dt)
-    #     self.dt, self.Info, self.Pan = self.p.paipan(return_list[1], return_list[3], qiguafangfa='输入动爻时间起卦', qiguashuru=[qiguashuru])
-    #     c = Fenxi().CecaiFenxi()
-    #     c.cecaifenxi(self.dt, self.Info, self.Pan)
-    #     # 解卦
-    #     res = c.danqishikongfa(qiguashuru)
-    #     return res
-    #
-    # def get_chunshijianguafa(self, dt, qiguashuru):
-    #     # 起卦输入是期号尾数
-    #     a = wannianli.wannianli_api.Api()
-    #     self.p = Paipan()
-    #     return_list = a.get_Calendar(dt)
-    #     self.dt, self.Info, self.Pan = self.p.paipan(return_list[1], return_list[3], qiguafangfa='标准时间起卦', qiguashuru=qiguashuru)
-    #     c = Fenxi().CecaiFenxi()
-    #     c.cecaifenxi(self.dt, self.Info, self.Pan)
-    #     # 解卦
-    #     res = c.chunshijianguafa()
-    #     return res
+    def get_chuantongfenxi(self):
+        if self.P is None:
+            print('请先调用paipan()排盘后再使用本函数！')
+            return None
+        self.chuantongfenxi = Chuantongfenxi()
+        self.pan = self.chuantongfenxi.fenxi(self.pan)
+        return self.pan
+
+    def get_cecaifenxi(self):
+        if self.P is None:
+            print('请先调用paipan()排盘后再使用本函数！')
+            return None
+        self.cecaifenxi = Cecaifenxi()
+        self.pan = self.cecaifenxi.fenxi(self.pan)
+        return self.pan

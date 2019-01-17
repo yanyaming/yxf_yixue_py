@@ -11,23 +11,23 @@ class Chuantongfenxi:
 
     def fenxi(self, pan):
         self.pan = pan
-        pan['标签'] = '传统分析'
-        self.wangshuai()
-        self.geju()
-        self.yongshen()
-        self.qushu()
+        self.pan['标签'] = '传统分析'
+        self._wangshuai()
+        self._geju()
+        self._yongshen()
+        self._qushu()
         return self.pan
 
-    def wangshuai(self):
+    def _wangshuai(self):
         pass
 
-    def geju(self):
+    def _geju(self):
         pass
 
-    def yongshen(self):
+    def _yongshen(self):
         pass
 
-    def qushu(self):
+    def _qushu(self):
         pass
 
     def output_addition(self):
@@ -65,13 +65,13 @@ class Lianghuafenxi(Chuantongfenxi):
         self.pan['量化分析']['八字喜忌'] = {}
         self.pan['量化分析']['建议取用'] = {}
         self.pan['量化分析']['建议取数'] = ''
-        self.wangshuai()
-        self.geju()
-        self.yongshen()
-        self.qushu()
+        self._wangshuai()
+        self._geju()
+        self._yongshen()
+        self._qushu()
         return self.pan
 
-    def wangshuai(self):
+    def _wangshuai(self):
         # 此处采用新浪博客“留指爪”的方法，原文没有提及五行自身旺衰的变化，我认为需要添加此逻辑
         # 1.八字旺衰：初始化八字权重系数之天干
         for name in ['年干', '月干', '日干', '时干']:  # 配置四柱的天干权值
@@ -176,7 +176,7 @@ class Lianghuafenxi(Chuantongfenxi):
         elif 83 < self.pan['量化分析']['旺衰']['己生助']:
             self.pan['量化分析']['旺衰']['日干'] = '极强'
 
-    def geju(self):
+    def _geju(self):
         # 八字格局
         for tiangan in self.pan['量化分析']['八字传统定格表']:
             if self.pan['八字单字']['日干']['宫主'] == tiangan:
@@ -195,7 +195,7 @@ class Lianghuafenxi(Chuantongfenxi):
         else:
             self.pan['量化分析']['取用格局'] = '扶抑'
 
-    def yongshen(self):
+    def _yongshen(self):
         # 取用不能仅靠量化，需要分类：
         # 扶抑：
         # 日干弱多官杀，不能克制官杀，而应当泄掉官杀，所以取印枭
@@ -363,7 +363,7 @@ class Lianghuafenxi(Chuantongfenxi):
             self.pan['量化分析']['建议取用']['天干'] = tmp_list[1]['天干']
             self.pan['量化分析']['建议取用']['十神'] = tmp_list[1]['十神']
 
-    def qushu(self):
+    def _qushu(self):
         self.pan['量化分析']['建议取数'] = self.pan['量化分析']['五行'][self.pan['量化分析']['八字喜忌']['喜1']['五行']]['五行数']+self.pan['量化分析']['五行'][self.pan['量化分析']['八字喜忌']['喜2']['五行']]['五行数']
 
     def output_addition(self):

@@ -2,48 +2,52 @@
 # -*- coding: utf-8 -*-
 from ..wannianli import WannianliApi
 from ._paipan import Paipan
-from ._fenxi import Fenxi
+from ._fenxi import Chuantongfenxi, Cecaifenxi
 
 
 class XiaochengtuApi:
     def __init__(self):
-        self.p = None
+        self.P = None
+        self.pan = None
+        self.chuantongfenxi = None
+        self.cecaifenxi = None
 
     def paipan(self, datetime_obj, lingdongshu=None, shuziqigua=None, guizangfangfa='四正'):
         a = WannianliApi()
-        self.p = Paipan()
+        self.P = Paipan()
         calendar = a.get_Calendar(datetime_obj)
-        self.res = self.p.paipan(calendar[1], calendar[3], lingdongshu=lingdongshu, shuziqigua=shuziqigua, guizangfangfa=guizangfangfa)
-        return self.res
+        self.pan = self.P.paipan(calendar[1], calendar[3], lingdongshu=lingdongshu, shuziqigua=shuziqigua, guizangfangfa=guizangfangfa)
+        return self.pan
 
     def print_pan(self):
-        if self.p is None:
+        if self.P is None:
             print('请先调用paipan()排盘后再使用本函数！')
             return None
-        return self.p.output()
+        else:
+            if self.pan.get('标签', None):
+                if self.pan['标签'] == '传统分析':
+                    output = self.P.output()
+                    output += self.chuantongfenxi.output_addition()
+                    return output
+                elif self.pan['标签'] == '测彩分析':
+                    output = self.P.output()
+                    output += self.cecaifenxi.output_addition()
+                    return output
+            else:
+                return self.P.output()
 
     def get_chuantongfenxi(self):
-        if self.p is None:
+        if self.P is None:
             print('请先调用paipan()排盘后再使用本函数！')
             return None
-        f = Fenxi().Chuantongfenxi()
-        f.fenxi(self.res)
-        return f.Fenxi
+        self.chuantongfenxi = Chuantongfenxi()
+        self.pan = self.chuantongfenxi.fenxi(self.pan)
+        return self.pan
 
-    # def get_canwuyishufa(self):
-    #     if self.p is None:
-    #         print('请先调用paipan()排盘后再使用本函数！')
-    #         return None
-    #     c = Fenxi().CecaiFenxi()
-    #     c.cecaifenxi(self.dt, self.Info, self.Pan)
-    #     res = c.canwuyishufa()
-    #     return res
-    #
-    # def get_dingweidanfa(self):
-    #     if self.p is None:
-    #         print('请先调用paipan()排盘后再使用本函数！')
-    #         return None
-    #     c = Fenxi().CecaiFenxi()
-    #     c.cecaifenxi(self.dt, self.Info, self.Pan)
-    #     res = c.dingweidanfa()
-    #     return res
+    def get_cecaifenxi(self):
+        if self.P is None:
+            print('请先调用paipan()排盘后再使用本函数！')
+            return None
+        self.cecaifenxi = Cecaifenxi()
+        self.pan = self.cecaifenxi.fenxi(self.pan)
+        return self.pan
