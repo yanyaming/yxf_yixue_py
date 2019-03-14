@@ -9,6 +9,7 @@ class Paipan:
         self.wuxingName = '木 火 土 金 水'.split(' ')
         self.tianganName = '甲 乙 丙 丁 戊 己 庚 辛 壬 癸'.split(' ')
         self.dizhiName = '子 丑 寅 卯 辰 巳 午 未 申 酉 戌 亥'.split(' ')
+        self.sanqiliuyiName = '戊 己 庚 辛 壬 癸 丁 丙 乙'.split(' ')
         # 导入数据
         self.db = Db()
         self.db2cdata = Db2Cdata()
@@ -38,8 +39,8 @@ class Paipan:
                     '4': {'宫数': 3, '宫卦': '震', '宫五行': '木', '宫支': '卯', '宫门': '伤', '宫星': '冲'}, '5': {'宫数': 5, '宫卦': '中', '宫五行': '土', '宫支': '', '宫门': '', '宫星': '禽'}, '6': {'宫数': 7, '宫卦': '兑', '宫五行': '金', '宫支': '酉', '宫门': '惊', '宫星': '柱'},
                     '7': {'宫数': 8, '宫卦': '艮', '宫五行': '土', '宫支': '丑寅', '宫门': '生', '宫星': '任'}, '8': {'宫数': 1, '宫卦': '坎', '宫五行': '水', '宫支': '子', '宫门': '休', '宫星': '蓬'}, '9': {'宫数': 6, '宫卦': '乾', '宫五行': '金', '宫支': '戌亥', '宫门': '开', '宫星': '心'}}
         self._xinxi()
-        self._dipan()
-        self._tianpan()
+        self._digan()
+        self._tiangan()
         self._bamen()
         self._jiuxing()
         self._bashen()
@@ -104,11 +105,20 @@ class Paipan:
         elif self.Xinxi['三元'] == '下元':
             self.Xinxi['遁局'] = dunjubiao[self.Xinxi['节气']][2]
 
-    def _dipan(self):
+    def _digan(self):
+        for i in self.Pan.keys():
+            if self.Xinxi['阴阳'] == '阳':
+                if self.Pan[i]['宫数'] >= self.Xinxi['遁局']:
+                    self.Pan[i]['地干'] = self.sanqiliuyiName[self.Pan[i]['宫数'] - self.Xinxi['遁局']]
+                else:
+                    self.Pan[i]['地干'] = self.sanqiliuyiName[self.Pan[i]['宫数'] - self.Xinxi['遁局'] + 9]
+            else:
+                if self.Xinxi['遁局'] >= self.Pan[i]['宫数']:
+                    self.Pan[i]['地干'] = self.sanqiliuyiName[self.Xinxi['遁局'] - self.Pan[i]['宫数']]
+                else:
+                    self.Pan[i]['地干'] = self.sanqiliuyiName[self.Xinxi['遁局'] - self.Pan[i]['宫数'] + 9]
 
-        pass
-
-    def _tianpan(self):
+    def _tiangan(self):
         # 旬首、值符、值使：
         # 1.找出时柱的旬首，并得出六仪的天干，安到地盘时干所在宫。
         # 2.确定此宫的地盘原位星门，星为值符，门为值使。（旬首、值符、值使均在地盘的同一宫确定）
@@ -138,10 +148,19 @@ class Paipan:
         map_str += self.Xinxi['三元'] + '：' + self.Xinxi['阴阳'] + '遁' + str(self.Xinxi['遁局']) + '局' + '  ' + self.Xinxi['布局方法'] + '法\n'
         map_str += '旬首：' + self.Xinxi['旬首'] + '  值符：' + self.Xinxi['值符'] + '  值使：' + self.Xinxi['值使'] + '\n\n'
         for i in self.Pan.keys():
-            map_str += str(self.Pan[i]['宫数'])
+            # 天盘（上面一行）
+            # map_str += str(self.Pan[i]['宫数'])
+            # map_str += self.Pan[i]['地干']
             map_str += '' + '|'
             if int(i) % 3 == 0:
-                map_str += '\n\n'
+                map_str += '\n'
+                for j in self.Pan.keys():
+                    if (int(j)-1) // 3 == (int(i)-1) // 3:
+                        # 地盘（下面一行）
+                        map_str += str(self.Pan[j]['宫数'])
+                        map_str += self.Pan[j]['地干']
+                        map_str += '' + '|'
+                map_str += '\n'
                 map_str += '------\t------\t------\t------\t------\t------'
                 map_str += '\n'
         #test
