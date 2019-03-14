@@ -9,7 +9,7 @@ import datetime
 import logging
 WEB_ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(WEB_ROOT)
-from yxf_yixue import WannianliApi,BaziApi,JinkoujueApi,XiaochengtuApi,LiuyaoApi
+from yxf_yixue import WannianliApi,BaziApi,JinkoujueApi,XiaochengtuApi,LiuyaoApi,QimenApi
 
 
 # 网址路由
@@ -19,6 +19,7 @@ urls = (
     '/jinkoujue', 'jinkoujue',
     '/liuyao', 'liuyao',
     '/xiaochengtu', 'xiaochengtu',
+    '/qimen', 'qimen',
 )
 
 
@@ -247,6 +248,44 @@ class xiaochengtu(object):
         try:
             if subop is None or subop == '排盘':
                 res = c.paipan(dt_obj, lingdongshu=lingdongshu, shuziqigua=shuziqigua,guizangfangfa=guizangfangfa)
+                if op == 'str':
+                    res = c.print_pan()
+        except Exception as e:
+            print(e)
+        return middleware_before_return(res, op)
+
+
+# 视图：奇门
+class qimen(object):
+    def GET(self):
+        inputs = web.input()
+        print(str(datetime.datetime.now()) + str(inputs))
+        # 必要参数
+        op = inputs.get('op', None)  # 返回何种格式。固定选项：json/str
+        date = inputs.get('date', None)  # 提交的查询日期。固定格式：YYYY-mm-dd（若格式不严谨可二次处理，例如YYYY-M-D,YYYY/mm/dd）
+        time = inputs.get('time', None)  # 提交的查询时间。固定格式：HH:MM
+        dt_obj = middleware_check_datetime(date, time)
+        if not isinstance(dt_obj, datetime.datetime):
+            return dt_obj
+        # 可选参数
+        subop = inputs.get('subop', None)  # 子操作。所有类别都需要，不写返回默认值
+        bujufangfa = inputs.get('bujufangfa','飞宫')  # 奇门需要。汉字：排宫/飞宫
+        # 执行数术程序
+        c = QimenApi()
+        res = None
+        try:
+            if subop is None or subop == '排盘':
+                res = c.paipan(dt_obj, bujufangfa=bujufangfa)
+                if op == 'str':
+                    res = c.print_pan()
+            elif subop == '传统分析':
+                c.paipan(dt_obj, bujufangfa=bujufangfa)
+                res = c.get_chuantongfenxi()
+                if op == 'str':
+                    res = c.print_pan()
+            elif subop == '量化分析':
+                c.paipan(dt_obj, bujufangfa=bujufangfa)
+                res = c.get_lianghuafenxi()
                 if op == 'str':
                     res = c.print_pan()
         except Exception as e:
