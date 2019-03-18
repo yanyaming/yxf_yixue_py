@@ -11,7 +11,9 @@ from yxf_yixue.wannianli import WannianliApi
 
 if __name__ == '__main__':
     a = QimenApi()
-    obj = datetime.datetime(2019, 3, 9, 20, 40)
-    a.paipan(obj,bujufangfa='转盘')
+    obj = datetime.datetime(2011, 12, 26, 20, 40)
+    # a.paipan(obj,bujufangfa='转盘')
+    a.paipan(obj, bujufangfa='飞盘')
+    a.get_cecaifenxi()
     print(a.print_pan())
     pass
