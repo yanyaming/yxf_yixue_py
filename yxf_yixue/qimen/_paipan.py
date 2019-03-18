@@ -26,7 +26,7 @@ class Paipan:
         self.Qimenbashen = self.db.get_tabledict_dict("[三式-奇门八神]")
 
     def paipan(self, datetime_obj, calendar, bujufangfa):
-        # 排盘争议1：转盘（布局按照旋转顺序），飞盘（布局按照宫数顺序），通过输入选择。
+        # 排盘争议1：转盘（排宫，布局按照旋转顺序），飞盘（飞宫，布局按照宫数顺序），通过输入选择。
         # 排盘争议2：拆补（上元天数可调整，多退少补），置闰（三元固定天数，逐渐积累到一个节气的天数就置闰），选择拆补。
         # 排盘争议3：布三奇六仪，南炎子的例子与书上理论相同没问题，玄奥软件和主流在线排盘反而都错了。
         # 排盘尺度：时家奇门兼刻家奇门。
@@ -35,15 +35,14 @@ class Paipan:
         self.solarTerm = calendar[2]
         self.ganzhi = calendar[3]
         self.Xinxi = {'节气': self.solarTerm['节气名称'], '月将': self.solarTerm['文本'][-5:-4], '阴阳': '', '三元': '', '遁局': '', '旬首': '', '值符': '', '值使': '', '布局方法': bujufangfa}
-        self.Pan = {'1': {'宫数': 4, '宫卦': '巽', '宫五行': '木', '宫支': '辰巳', '宫门': '杜', '宫星': '辅'}, '2': {'宫数': 9, '宫卦': '离', '宫五行': '火', '宫支': '午', '宫门': '景', '宫星': '英'}, '3': {'宫数': 2, '宫卦': '坤', '宫五行': '土', '宫支': '未申', '宫门': '死', '宫星': '芮'},
-                    '4': {'宫数': 3, '宫卦': '震', '宫五行': '木', '宫支': '卯', '宫门': '伤', '宫星': '冲'}, '5': {'宫数': 5, '宫卦': '中', '宫五行': '土', '宫支': '', '宫门': '', '宫星': '禽'}, '6': {'宫数': 7, '宫卦': '兑', '宫五行': '金', '宫支': '酉', '宫门': '惊', '宫星': '柱'},
-                    '7': {'宫数': 8, '宫卦': '艮', '宫五行': '土', '宫支': '丑寅', '宫门': '生', '宫星': '任'}, '8': {'宫数': 1, '宫卦': '坎', '宫五行': '水', '宫支': '子', '宫门': '休', '宫星': '蓬'}, '9': {'宫数': 6, '宫卦': '乾', '宫五行': '金', '宫支': '戌亥', '宫门': '开', '宫星': '心'}}
+        self.Pan = {'1': {'宫数': 4, '转数': 5, '宫卦': '巽', '宫五行': '木', '宫支': '辰巳', '宫门': '杜', '宫星': '辅'}, '2': {'宫数': 9, '转数': 6, '宫卦': '离', '宫五行': '火', '宫支': '午', '宫门': '景', '宫星': '英'}, '3': {'宫数': 2, '转数': 7, '宫卦': '坤', '宫五行': '土', '宫支': '未申', '宫门': '死', '宫星': '芮'},
+                    '4': {'宫数': 3, '转数': 4, '宫卦': '震', '宫五行': '木', '宫支': '卯', '宫门': '伤', '宫星': '冲'}, '5': {'宫数': 5, '转数': 9, '宫卦': '中', '宫五行': '土', '宫支': '', '宫门': '中', '宫星': '禽'}, '6': {'宫数': 7, '转数': 8, '宫卦': '兑', '宫五行': '金', '宫支': '酉', '宫门': '惊', '宫星': '柱'},
+                    '7': {'宫数': 8, '转数': 3, '宫卦': '艮', '宫五行': '土', '宫支': '丑寅', '宫门': '生', '宫星': '任'}, '8': {'宫数': 1, '转数': 2, '宫卦': '坎', '宫五行': '水', '宫支': '子', '宫门': '休', '宫星': '蓬'}, '9': {'宫数': 6, '转数': 1, '宫卦': '乾', '宫五行': '金', '宫支': '戌亥', '宫门': '开', '宫星': '心'}}
         self._xinxi()
-        self._digan()
-        self._tiangan()
-        self._bamen()
-        self._jiuxing()
-        self._bashen()
+        self._dipan()
+        self._tianpan(bujufangfa)
+        self._renpan()
+        self._shenpan()
         self._liushijiazi()
         self.Res = {'占时': {'节气': self.solarTerm, '干支': self.ganzhi}, '信息': self.Xinxi, '盘': self.Pan}
         return self.Res
@@ -105,7 +104,7 @@ class Paipan:
         elif self.Xinxi['三元'] == '下元':
             self.Xinxi['遁局'] = dunjubiao[self.Xinxi['节气']][2]
 
-    def _digan(self):
+    def _dipan(self):
         for i in self.Pan.keys():
             if self.Xinxi['阴阳'] == '阳':
                 if self.Pan[i]['宫数'] >= self.Xinxi['遁局']:
@@ -118,24 +117,53 @@ class Paipan:
                 else:
                     self.Pan[i]['地干'] = self.sanqiliuyiName[self.Xinxi['遁局'] - self.Pan[i]['宫数'] + 9]
 
-    def _tiangan(self):
+    def _tianpan(self, bujufangfa):
         # 旬首、值符、值使：
-        # 1.找出时柱的旬首，并得出六仪的天干，安到地盘时干所在宫。
-        # 2.确定此宫的地盘原位星门，星为值符，门为值使。（旬首、值符、值使均在地盘的同一宫确定）
+        # 1.找出时柱的旬首及其六仪干，统一作为旬首信息。把此干安到地盘时干之上（此是后续排天盘的基准点）。
+        # 2.以此干作为地干，以地干所在宫得到宫星、宫门，星为值符，门为值使。
         xun = (int(self.Liushijiazi[self.ganzhi['时柱']]['序号'])-1) // 10
         self.Xinxi['旬首'] = self.Liushijiazilist[xun*10]['六十甲子']
         liuyi = None
         for i in self.Qimentiangan.keys():
             if self.Qimentiangan[i]['六仪旬首'] == self.Xinxi['旬首']:
                 liuyi = self.Qimentiangan[i]['天干']
+                self.Xinxi['旬首'] += self.Qimentiangan[i]['天干']
+        for i in self.Pan.keys():
+            self.Pan[i]['天干'] = ''
+        xunshougong = None
+        yuanweigong = None
+        for i in self.Pan.keys():
+            if self.Pan[i]['地干'] == self.ganzhi['时柱'][0:1]:
+                self.Pan[i]['天干'] = liuyi
+                xunshougong = self.Pan[i]
+            if self.Pan[i]['地干'] == liuyi:
+                yuanweigong = self.Pan[i]
+                self.Xinxi['值符'] = yuanweigong['宫星']
+                self.Xinxi['值使'] = yuanweigong['宫门']
+        # 布局方法从这里开始分歧。开始排布天干
+        if bujufangfa == '转盘':
+            index = xunshougong['转数']
+            for i in self.Pan.keys():
+                if self.Pan[i]['转数'] >= index:
+                    for j in self.Pan.keys():
+                        if self.Pan[j]['转数'] == (self.Pan[i]['转数']-index+1):
+                            self.Pan[i]['天干'] = self.Pan[j]['地干']
+                            self.Pan[i]['天星'] = self.Pan[j]['宫星']
+                else:
+                    for j in self.Pan.keys():
+                        if self.Pan[j]['转数'] == (self.Pan[i]['转数']-index+9):
+                            self.Pan[i]['天干'] = self.Pan[j]['地干']
+                            self.Pan[i]['天星'] = self.Pan[j]['宫星']
+                if self.Pan[i]['转数'] == 9:
+                    self.Pan[i]['天干'] = '  '
+                    self.Pan[i]['天星'] = '  '
+        elif bujufangfa == '飞盘':
+            pass
 
-    def _bamen(self):
+    def _renpan(self):
         pass
 
-    def _jiuxing(self):
-        pass
-
-    def _bashen(self):
+    def _shenpan(self):
         pass
 
     def _liushijiazi(self):
@@ -143,28 +171,30 @@ class Paipan:
 
     def output(self):
         map_str = ''
+        map_str += self.solar['文本'] + '\n'
         map_str += self.solarTerm['文本'] + '\n'
         map_str += self.ganzhi['文本'] + '\n'
         map_str += self.Xinxi['三元'] + '：' + self.Xinxi['阴阳'] + '遁' + str(self.Xinxi['遁局']) + '局' + '  ' + self.Xinxi['布局方法'] + '法\n'
         map_str += '旬首：' + self.Xinxi['旬首'] + '  值符：' + self.Xinxi['值符'] + '  值使：' + self.Xinxi['值使'] + '\n\n'
         for i in self.Pan.keys():
             # 天盘（上面一行）
-            # map_str += str(self.Pan[i]['宫数'])
-            # map_str += self.Pan[i]['地干']
+            map_str += self.Pan[i]['天干']
+            map_str += self.Pan[i]['天星']
             map_str += '' + '|'
             if int(i) % 3 == 0:
                 map_str += '\n'
                 for j in self.Pan.keys():
                     if (int(j)-1) // 3 == (int(i)-1) // 3:
                         # 地盘（下面一行）
-                        map_str += str(self.Pan[j]['宫数'])
+                        # map_str += str(self.Pan[j]['宫数'])
                         map_str += self.Pan[j]['地干']
+                        map_str += '  '
                         map_str += '' + '|'
                 map_str += '\n'
-                map_str += '------\t------\t------\t------\t------\t------'
+                map_str += '---- ---- ----'
                 map_str += '\n'
         #test
-        # map_str += str(self.solarTerm)+'\n'
+        # map_str += str(self.solar)+'\n'
         # map_str += str(self.ganzhi) + '\n'
         # map_str += str(self.Liushijiazi)+'\n'
         # map_str += str(self.Liushijiazilist) + '\n'

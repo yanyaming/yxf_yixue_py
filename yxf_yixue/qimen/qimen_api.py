@@ -12,7 +12,7 @@ class QimenApi:
         self.chuantongfenxi = None
         self.cecaifenxi = None
 
-    def paipan(self, datetime_obj, bujufangfa='排宫'):
+    def paipan(self, datetime_obj, bujufangfa='转盘'):
         a = WannianliApi()
         self.P = Paipan()
         calendar = a.get_Calendar(datetime_obj)

@@ -11,8 +11,7 @@ from yxf_yixue.wannianli import WannianliApi
 
 if __name__ == '__main__':
     a = QimenApi()
-    string = '1996/02/29 23:16'
-    obj = datetime.datetime(2019, 3, 9, 12, 40)
-    a.paipan(obj,bujufangfa='排宫')
+    obj = datetime.datetime(2019, 3, 9, 20, 40)
+    a.paipan(obj,bujufangfa='转盘')
     print(a.print_pan())
     pass
