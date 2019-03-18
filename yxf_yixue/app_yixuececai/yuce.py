@@ -2,6 +2,7 @@ import os
 import datetime
 from ..utils._db import Db
 from ..bazi.bazi_api import BaziApi
+from ..qimen.qimen_api import QimenApi
 from ..app_yixuececai.jichufenxi import Pr,P,Cr,C
 
 
@@ -13,7 +14,7 @@ class Yuce:
         fucai3d = self.db.get_tabledict_list("[福彩3D]")
         tongji = {'已执行': 0, '匹配1': 0, '匹配2': 0, '匹配3': 0, '概率1': 0, '概率2': 0, '概率3': 0, '匹配列表': []}
 
-        def get_baziqushu(table_row0):
+        def get_qushu(table_row0):
             dt_obj = datetime.datetime.strptime(table_row0, '%Y-%m-%d')
             dt_obj += datetime.timedelta(hours=21, minutes=30)
             bazi = BaziApi()
@@ -27,9 +28,10 @@ class Yuce:
             ]
             return baziqushu_list
 
+        # 逐条解析历史数据，每一条都会调用一次预测功能
         for table_row in fucai3d:
             print(table_row)
-            baziqushu = get_baziqushu(table_row['开奖日期'])
+            baziqushu = get_qushu(table_row['开奖日期'])
             print(baziqushu)
             pipei = []
             # 筛选，为了减少投注数放弃组三，只要是组三号就规定为一个都不匹配
@@ -58,4 +60,43 @@ class Yuce:
         tongji['概率1'] = tongji['匹配1'] / tongji['已执行']
         tongji['概率2'] = tongji['匹配2'] / tongji['已执行']
         tongji['概率3'] = tongji['匹配3'] / tongji['已执行']
+        print(tongji)
+
+    def test_qimen(self):
+        fucai3d = self.db.get_tabledict_list("[福彩3D]")
+        tongji = {'已执行': 0, '匹配': 0, '概率': 0, '成本': 0, '盈利': 0, '匹配列表': []}
+
+        def get_qushu(table_row0,last_num):
+            dt_obj = datetime.datetime.strptime(table_row0, '%Y-%m-%d')
+            dt_obj += datetime.timedelta(hours=21, minutes=30)
+            qimen = QimenApi()
+            qimen.paipan(dt_obj)
+            res = qimen.get_cecaifenxi(last_num)
+            qushu_list = res['测彩分析']['建议投注']
+            return qushu_list
+
+        # 逐条解析历史数据，每一条都会调用一次预测功能
+        for i,table_row in enumerate(fucai3d):
+            if i == len(fucai3d)-2:
+                break
+            last_num = fucai3d[i+1]['中奖号码'].split(' ')
+            print(table_row)
+            qushu = get_qushu(table_row['开奖日期'],last_num)
+            print(len(qushu))
+            pipei = []
+            for item in qushu:
+                if [int(table_row['百位']),int(table_row['十位']),int(table_row['个位'])] == item:
+                    pipei.append(item)
+            print(pipei)
+            # 记录数据
+            tongji['成本'] += 2*len(qushu)
+            tongji['匹配列表'].append(pipei)
+            tongji['已执行'] += 1
+
+        # 全部执行完成后再根据匹配列表最终统计
+        for pipei in tongji['匹配列表']:
+            if len(pipei)>=1:
+                tongji['匹配'] += 1
+        tongji['概率'] = tongji['匹配'] / tongji['已执行']
+        tongji['盈利'] = tongji['匹配']*1040 - tongji['成本']
         print(tongji)

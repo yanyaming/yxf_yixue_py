@@ -25,7 +25,9 @@ def work1():
 
 
 def work2():
-    pass
+    # 测试奇门测彩的命中率
+    yuce = Yuce()
+    yuce.test_qimen()
 
 
 def work3():
@@ -34,12 +36,8 @@ def work3():
     yuce.test_bazi()
 
 
-def work4():
-    pass
-
-
 if __name__ == '__main__':
     print("基础路径：", BASE_DIR)
     # gen_db()  # 生成数据库，只需要在最初执行一次
     work1()
-    work3()
+    work2()

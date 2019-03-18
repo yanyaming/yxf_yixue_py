@@ -44,10 +44,11 @@ class QimenApi:
         self.pan = self.chuantongfenxi.fenxi(self.pan)
         return self.pan
 
-    def get_cecaifenxi(self):
+    # 输入：上期奖号，三位数字组成列表
+    def get_cecaifenxi(self, shangqijianghao):
         if self.P is None:
             print('请先调用paipan()排盘后再使用本函数！')
             return None
         self.cecaifenxi = Cecaifenxi()
-        self.pan = self.cecaifenxi.fenxi(self.pan)
+        self.pan = self.cecaifenxi.fenxi(self.pan, shangqijianghao)
         return self.pan
