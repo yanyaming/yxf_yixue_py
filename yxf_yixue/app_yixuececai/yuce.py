@@ -63,15 +63,16 @@ class Yuce:
         print(tongji)
 
     def test_qimen(self):
-        fucai3d = self.db.get_tabledict_list("[福彩3D]")
+        fucai3d = self.db.get_tabledict_list("[体彩排列三]")
         tongji = {'已执行': 0, '匹配': 0, '概率': 0, '成本': 0, '盈利': 0, '匹配列表': []}
 
         def get_qushu(table_row0,last_num):
             dt_obj = datetime.datetime.strptime(table_row0, '%Y-%m-%d')
-            dt_obj += datetime.timedelta(hours=21, minutes=30)
+            dt_obj += datetime.timedelta(hours=20, minutes=30)
             qimen = QimenApi()
             qimen.paipan(dt_obj)
             res = qimen.get_cecaifenxi(last_num)
+            print(res['测彩分析']['建议取数'])
             qushu_list = res['测彩分析']['建议投注']
             return qushu_list
 
@@ -79,21 +80,25 @@ class Yuce:
         for i,table_row in enumerate(fucai3d):
             if i == len(fucai3d)-2:
                 break
-            last_num = fucai3d[i+1]['中奖号码'].split(' ')
-            print(table_row)
-            qushu = get_qushu(table_row['开奖日期'],last_num)
-            print(len(qushu))
-            pipei = []
-            for item in qushu:
-                if [int(table_row['百位']),int(table_row['十位']),int(table_row['个位'])] == item:
-                    pipei.append(item)
-            print(pipei)
-            # 记录数据
-            tongji['成本'] += 2*len(qushu)
-            tongji['匹配列表'].append(pipei)
-            tongji['已执行'] += 1
+            # if 2300<i<2350:
+            if True:
+                last_num = fucai3d[i+1]['中奖号码'].split(' ')
+                print(table_row)
+                print(last_num)
+                qushu = get_qushu(table_row['开奖日期'],last_num)
+                # print(qushu)
+                print(len(qushu))
+                pipei = []
+                for item in qushu:
+                    if [int(table_row['百位']),int(table_row['十位']),int(table_row['个位'])] == item:
+                        pipei.append(item)
+                print(pipei)
+                # 记录数据
+                tongji['成本'] += 2*len(qushu)
+                tongji['匹配列表'].append(pipei)
+                tongji['已执行'] += 1
 
-        # 全部执行完成后再根据匹配列表最终统计
+        # 全部执行完成后再根据匹配列表最终统计。仍是随机概率，也许批量预测根本不可行
         for pipei in tongji['匹配列表']:
             if len(pipei)>=1:
                 tongji['匹配'] += 1
