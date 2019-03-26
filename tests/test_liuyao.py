@@ -12,9 +12,8 @@ if __name__ == '__main__':
     string = '1996/02/29 23:16'
     obj = datetime.datetime(2018, 6, 24, 21, 40)
     a = LiuyaoApi()
-    res1 = a.paipan(obj, qiguafangfa='爻位起卦', qiguashuru=[5, 1, 8, 5, 4, 8, [4]], naganzhifangfa='传统京氏')
-    print(res1)
-    a.print_pan()
+    res1 = a.paipan(obj, qiguafangfa='两数字起卦', qiguashuru=[5, 9], naganzhifangfa='传统京氏')
+    print(a.print_pan())
     # res = a.get_danqishikongfa(obj, qiguashuru=[1])
     # print(res)
     pass

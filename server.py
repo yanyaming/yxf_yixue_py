@@ -269,7 +269,7 @@ class qimen(object):
             return dt_obj
         # 可选参数
         subop = inputs.get('subop', None)  # 子操作。所有类别都需要，不写返回默认值
-        bujufangfa = inputs.get('bujufangfa','飞宫')  # 奇门需要。汉字：排宫/飞宫
+        bujufangfa = inputs.get('bujufangfa','飞盘')  # 奇门需要。汉字：转盘/飞盘
         # 执行数术程序
         c = QimenApi()
         res = None
@@ -281,11 +281,6 @@ class qimen(object):
             elif subop == '传统分析':
                 c.paipan(dt_obj, bujufangfa=bujufangfa)
                 res = c.get_chuantongfenxi()
-                if op == 'str':
-                    res = c.print_pan()
-            elif subop == '量化分析':
-                c.paipan(dt_obj, bujufangfa=bujufangfa)
-                res = c.get_lianghuafenxi()
                 if op == 'str':
                     res = c.print_pan()
         except Exception as e:

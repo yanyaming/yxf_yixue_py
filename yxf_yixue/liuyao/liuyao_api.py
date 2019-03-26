@@ -16,8 +16,8 @@ class LiuyaoApi:
         a = WannianliApi()
         self.P = Paipan()
         calendar = a.get_Calendar(datetime_obj)
-        res = self.P.paipan(calendar[1], calendar[3], qiguafangfa=qiguafangfa, qiguashuru=qiguashuru, naganzhifangfa=naganzhifangfa)
-        return res
+        self.pan = self.P.paipan(calendar[1], calendar[3], qiguafangfa=qiguafangfa, qiguashuru=qiguashuru, naganzhifangfa=naganzhifangfa)
+        return self.pan
 
     def print_pan(self):
         if self.P is None:
